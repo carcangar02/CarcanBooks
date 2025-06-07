@@ -1,0 +1,129 @@
+{% load static%}
+
+<html>
+    <head>
+        <title>{{ libro.titulo }}</title>
+        <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
+
+    </head>
+    <body>
+        <div> 
+            <div class="libro-details">
+                <h1>{{ libro.titulo }}</h1>
+                <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
+                <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
+                <label for="switch">Toggle</label>
+                <select id="select_libreria">
+                    {%if libro.id%}
+                        {% for libreria in librerias %}
+                            <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria %}selected{% endif %}>{{ libreria.nombre }}</option>
+                        {% endfor %}
+                    {%endif%}
+
+                </select>
+            </div>
+            <div>
+                <ul id="lista_capitulos">
+
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+<script>
+const capitulos = JSON.parse('{{ capitulos|escapejs }}');
+capitulos.forEach((capitulo) => {
+    const li = document.createElement('li');
+    if (capitulo.visto==true) {
+        li.classList.add('visto')
+    } else {
+        li.classList.add('no_visto')
+    }
+    li.innerHTML = `<a href="/libros/lector/${capitulo.id}/">${capitulo.titulo}</a>`;
+    document.getElementById('lista_capitulos').appendChild(li);
+});
+
+
+
+
+document.getElementById("select_libreria").addEventListener("change", (e) => {
+    const libreriaId = e.target.value;
+    const formData = new FormData();
+    formData.append('nueva_libreria', libreriaId);
+    formData.append('libro_id', {{libro.id}});
+    cambiarLibreria(formData);
+
+});
+
+function cambiarLibreria(formData) {
+
+fetch('/libros/cambiar_libreria/', {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: formData
+})
+.then(response => response.json())
+.then(data => console.log("Libreria Cambiada:", data));
+}
+
+
+
+
+
+
+
+
+document.getElementById("switch").addEventListener("change", (e) => {
+    const formData = new FormData();
+    const libro_info = {
+        'titulo': '{{ libro.titulo}}',
+        'enlace': '{{ libro.enlace }}',
+        'foto': '{{ libro.foto }}',
+        'libreria': 2,
+        'extension': '{{ libro.extension }}',
+    }
+    formData.append('libro_id', {{libro.id }});
+    
+
+
+    if (e.target.checked) {
+        formData.append('status', true);
+        formData.append('libro_info', JSON.stringify(libro_info));
+        
+
+        fetch('/libros/cambio_status/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log("Libro Agregado:", data));
+
+
+    } 
+    
+    
+    
+    
+    
+    else {
+        formData.append('status', false);
+
+        fetch('/libros/cambio_status/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => console.log("Libro Eliminado:", data));
+        }
+    });
+</script>

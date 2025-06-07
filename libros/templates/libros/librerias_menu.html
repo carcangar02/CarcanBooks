@@ -1,0 +1,64 @@
+
+<html>
+    <head>
+    </head>
+    <body>
+        
+        <select id="select_libreria">
+            <option value="">Todas</option>
+            {% for libreria in librerias %}
+                <option value="{{ libreria.pk }}" {% if libreria.pk == 1 %}selected{% endif %}>{{ libreria.nombre }}</option>
+            {% endfor %}
+        </select>
+
+        <div id="div_libros"></div>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+<script>
+// Precarga desde Django del JSON de libros
+const libros = JSON.parse('{{ info_libros|escapejs }}');
+const container = document.getElementById("div_libros");
+
+// Función para renderizar libros
+function renderLibros(filtroLibreria = null) {
+    container.innerHTML = "";
+    let filtrados = libros;
+
+    if (filtroLibreria) {
+        filtrados = libros.filter(libro => libro.libreria == filtroLibreria);
+    }
+
+    filtrados.forEach(libro => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <p>${libro.titulo}</p>
+            <a href="/libros/libro/${libro.id}/">
+            <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
+            </a>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Valor inicial (el valor seleccionado en el select)
+const initialLibreriaId = document.getElementById("select_libreria").value;
+
+// Render inicial de libros con esa librería seleccionada
+renderLibros(initialLibreriaId);
+
+// Evento al cambiar el select
+document.getElementById("select_libreria").addEventListener("change", (e) => {
+    const libreriaId = e.target.value;
+    renderLibros(libreriaId || null);
+});
+
+</script>
