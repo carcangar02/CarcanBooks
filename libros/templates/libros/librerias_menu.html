@@ -39,9 +39,10 @@ function renderLibros(filtroLibreria = null) {
 
     filtrados.forEach(libro => {
         const div = document.createElement("div");
+        let info_libro_url = encodeURIComponent(JSON.stringify(libro));
         div.innerHTML = `
             <p>${libro.titulo}</p>
-            <a href="/libros/libro/${libro.id}/">
+            <a href="/libros/libro/${info_libro_url}/">
             <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
             </a>
         `;

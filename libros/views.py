@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .models import Libreria, Libro, Capitulos
+from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
+from urllib.parse import unquote
+
 
 
 
@@ -23,6 +25,7 @@ def librerias_menu(request):
             libro_scrapped = extension_scrap.scrap_libro_details(libro)
             info_libros.append({
                 'id': libro.id,
+                'enlace': libro.enlace,
                 'titulo': libro.titulo,
                 'foto': libro_scrapped['foto'],
                 'libreria': libro.libreria_id
@@ -132,16 +135,33 @@ def lector(request, capitulo_id):
 
 
 
-def buscardor(request):
-    pass
+def buscador(request):
+    return render(request, "libros/buscador.html" )
+
 
 
 
 
 
 def busqueda(request):
-    pass
-
+    input_busqueda = request.POST.get('input_busqueda')
+    Extensiones = Extension.objects.values('nombre')
+    array_resultados = []
+    try:
+        for extension in Extensiones:
+            nombre_extension = extension['nombre']
+            
+            nombre_extension_modulo = importlib.import_module(f'libros.services.{nombre_extension}.scrap')
+            resultado_busqueda = nombre_extension_modulo.scrap_busqueda(input_busqueda)
+            array_resultados.append({
+                'nombre_extension': nombre_extension,
+                'resultados': resultado_busqueda
+            })
+        return JsonResponse(array_resultados, safe=False, status=200)
+    except ImportError as e:
+        print(f"Error al importar el módulo de extensión {nombre_extension}: {e}")
+    except Exception as e:
+        print(f"Error al ejecutar la búsqueda para la extensión {nombre_extension}: {e}")
 
 
 
@@ -185,7 +205,7 @@ def cambiar_libreria(request):
     try:
         libro_id = request.POST.get('libro_id')
         nueva_libreria_id = request.POST.get('nueva_libreria_id')
-
+        print(libro_id, nueva_libreria_id)
         libro = Libro.objects.get(pk=libro_id)
         nueva_libreria = Libreria.objects.get(pk=nueva_libreria_id)
 

@@ -1,0 +1,72 @@
+<html>
+    <head>
+        <title>Buscador de Libros</title>
+    </head>
+    <body>
+            <form id="buscardor">
+                <input type="text" id="input_busqueda" placeholder="Escribe algo" required>
+                <button type="submit">Enviar</button>
+            </form>
+            <div id="div_extensiones">
+
+            </div>
+    </body>
+</html>
+<script>
+document.getElementById('buscardor').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const input_busqueda = document.getElementById('input_busqueda').value;
+  const formData = new FormData();
+  formData.append('input_busqueda', input_busqueda);
+
+  fetch('/libros/busqueda/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    const div_extensiones = document.getElementById('div_extensiones');
+    div_extensiones.innerHTML = ''; // Limpiar el contenido previo
+
+    data.forEach(extension => {
+      // Crear div para la extensión
+      const divExtension = document.createElement('div');
+      divExtension.classList.add('extension-result');
+      divExtension.innerHTML = `<h3>${extension.nombre_extension}</h3>`;
+
+      if (extension.resultados.length === 0) {
+        divExtension.innerHTML += `<p>No se encontraron resultados.</p>`;
+      } else {
+        extension.resultados.forEach(libro => {
+          const libroCard = document.createElement('div');
+          libroCard.classList.add('libro-card');
+          let info_libro_url = encodeURIComponent(JSON.stringify(libro));
+
+
+          libroCard.innerHTML = `
+            
+            <div class="libro-info">
+              <h4>${libro.titulo}</h4>
+              <a href="/libros/libro/${info_libro_url}/">
+                <img src="${libro.foto}" alt="${libro.titulo}" />
+              </a>
+            </div>
+
+          `;
+
+          divExtension.appendChild(libroCard);
+        });
+      }
+
+      // Añadir el div de la extensión al contenedor principal
+      div_extensiones.appendChild(divExtension);
+    });
+  });
+});
+
+    
+</script>

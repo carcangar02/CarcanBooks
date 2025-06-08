@@ -51,7 +51,7 @@ capitulos.forEach((capitulo) => {
 document.getElementById("select_libreria").addEventListener("change", (e) => {
     const libreriaId = e.target.value;
     const formData = new FormData();
-    formData.append('nueva_libreria', libreriaId);
+    formData.append('nueva_libreria_id', libreriaId);
     formData.append('libro_id', {{libro.id}});
     cambiarLibreria(formData);
 
