@@ -1,10 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
-from urllib.parse import unquote
-
 
 
 
@@ -25,7 +23,6 @@ def librerias_menu(request):
             libro_scrapped = extension_scrap.scrap_libro_details(libro)
             info_libros.append({
                 'id': libro.id,
-                'enlace': libro.enlace,
                 'titulo': libro.titulo,
                 'foto': libro_scrapped['foto'],
                 'libreria': libro.libreria_id
@@ -67,14 +64,8 @@ def librerias_menu(request):
 
 
 
-def libro_details(request, libro_id=None):
+def libro_details(request, libro_id):
     try:
-        libro_busqueda = request.POST.get('libro_busqueda') 
-
-        if libro_busqueda:
-            extension_scrap = importlib.import_module(f'libros.services.{libro_busqueda.extension}.scrap')
-            libro_scrapped = extension_scrap.scrap_libro_details(libro_busqueda)
-            libro_id = None
         if libro_id:       
             libro = Libro.objects.get(pk=libro_id)
             capitulos = libro.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
