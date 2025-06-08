@@ -27,25 +27,25 @@ def scrap_capitulo(enlace):
 
 
 
-def scrap_libro_details(libro):
-    titulo = libro.titulo
-    titulo_enlace = titulo.strip().replace(" ", "-").lower()
-    enlace = libro.enlace
-    enlace_capitulos = f"https://novelbin.com/ajax/chapter-archive?novelId={titulo_enlace}"
+def scrap_libro_details(enlace):
 
     scraper = cloudscraper.create_scraper()
     response = scraper.get(enlace)
 
-    scraper_capitulos = cloudscraper.create_scraper()
-    response_capitulos = scraper_capitulos.get(enlace_capitulos)
 
     # Comprobar que la petición fue exitosa
     if response.status_code == 200:
         # Parsear el HTML con BeautifulSoup
         main = BeautifulSoup(response.text, 'html.parser')
         imagen = main.find('img', class_='lazy')
-        titulo = main.find('h3', class_='title')
+        titulo_web = main.find('h3', class_='title')
 
+
+    titulo_enlace = titulo_web.text.strip().replace(" ", "-").lower()
+
+    enlace_capitulos = f"https://novelbin.com/ajax/chapter-archive?novelId={titulo_enlace}"
+    scraper_capitulos = cloudscraper.create_scraper()
+    response_capitulos = scraper_capitulos.get(enlace_capitulos)
 
     if response_capitulos.status_code == 200:
         main = BeautifulSoup(response_capitulos.text, 'html.parser')
@@ -58,7 +58,7 @@ def scrap_libro_details(libro):
             })
 
     info_libro = {
-        'titulo': titulo.text,
+        'titulo': titulo_web.text,
         'foto': imagen['data-src'],
         'capitulos': capitulos_array
     }

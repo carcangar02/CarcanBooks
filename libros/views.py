@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
+import base64
 
 
 
@@ -20,7 +21,7 @@ def librerias_menu(request):
         try:
             num_caps_db = len(libro.capitulos.all())
             extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
-            libro_scrapped = extension_scrap.scrap_libro_details(libro)
+            libro_scrapped = extension_scrap.scrap_libro_details(libro.enlace)
             info_libros.append({
                 'id': libro.id,
                 'titulo': libro.titulo,
@@ -64,40 +65,75 @@ def librerias_menu(request):
 
 
 
-def libro_details(request, libro_id):
-    try:
-        if libro_id:       
-            libro = Libro.objects.get(pk=libro_id)
-            capitulos = libro.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
-            extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
-            libro_scrapped = extension_scrap.scrap_libro_details(libro)
+def libro_details(request, libro_id=None, info_coded=None):
+    if libro_id is None and info_coded is not None:
         
+        decoded_bytes = base64.b64decode(info_coded)
+        info_decoded = decoded_bytes.decode('utf-8')
+        info_parts = info_decoded.split('&&&%%%')
+        enlace = info_parts[0]
+        extension = info_parts[1]
+
+        libro_exist = Libro.objects.filter(enlace=enlace).exists()
+        if libro_exist:
+            libro = Libro.objects.get(enlace=enlace)
+            libro_id = libro.id
+        else:
+            extension_scrap = importlib.import_module(f'libros.services.{extension}.scrap')
+            libro_scrapped = extension_scrap.scrap_libro_details(enlace) 
+            capitulos = []
+            last_capitulo = Capitulos.objects.order_by('-id').first()
+            last_libro = Libro.objects.order_by('-id').first()
+            libro_id = None
+            next_id = last_capitulo.id 
+            
+            for cap in libro_scrapped['capitulos']:
+                next_id += 1
+                capitulos.append({
+                    'id': next_id,
+                    'titulo': cap['title'],
+                    'enlace': cap['href'],
+                    'visto': False
+                })
+            libreria = None
+    else:      
+
+
+        if libro_id:       
+            libro_db = Libro.objects.get(pk=libro_id)
+            print(libro_db.enlace)
+            capitulos = libro_db.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
+            extension_scrap = importlib.import_module(f'libros.services.{libro_db.extension.nombre}.scrap')
+            libro_scrapped = extension_scrap.scrap_libro_details(libro_db.enlace)
+            enlace = libro_db.enlace
+            libreria = libro_db.libreria
+            extension = libro_db.extension.nombre
 
 
 
 
-        librerias  = Libreria.objects.values('pk', 'nombre')
 
-        info_libro = {
-            'id': libro_id,
-            'enlace': libro.enlace,
-            'titulo': libro_scrapped['titulo'],
-            'foto': libro_scrapped['foto'],
-            'capitulos':libro_scrapped['capitulos'],
-            'libreria': libro.libreria.pk,
-            'extension': libro.extension.nombre
-        }
+    librerias  = Libreria.objects.values('pk', 'nombre')
 
-        context = {
-            'librerias': list(librerias),
-            'libro': info_libro,
-            'capitulos': json.dumps(list(capitulos)),
-        }
+    info_libro = {
+        'id': libro_id,
+        'enlace': enlace,
+        'titulo': libro_scrapped['titulo'],
+        'foto': libro_scrapped['foto'],
+        'capitulos':libro_scrapped['capitulos'],
+        'libreria': libreria,
+        'extension': extension
+    }
+
+    context = {
+        'librerias': list(librerias),
+        'libro': info_libro,
+        'capitulos': json.dumps(list(capitulos)),
+    }
 
 
-        return render(request, "libros/libro_details.html" , context)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    return render(request, "libros/libro_details.html" , context)
+
 
 
 
@@ -171,11 +207,14 @@ def cambio_status(request):
             return JsonResponse({'message': 'Libro eliminado correctamente.'}, status=200)
         if status == 'true':
             libro_info = json.loads(request.POST.get('libro_info'))
+            libreria_create = Libreria.objects.get(id=2)
+            extension_create = Extension.objects.get(nombre=libro_info.get('extension'))
+            print(f"{libro_info.get('titulo')},      {libro_info.get('enlace')}       {libro_info.get('extension')} ")
             Libro.objects.create(
                 titulo=libro_info.get('titulo'),
                 enlace=libro_info.get('enlace'),
-                libreria=2,
-                extension=libro_info.get('extension')
+                libreria=libreria_create,
+                extension=extension_create
             )
             return JsonResponse({'message': 'Libro guardado correctamente.'}, status=200)
 

@@ -44,14 +44,14 @@ document.getElementById('buscardor').addEventListener('submit', function(e) {
         extension.resultados.forEach(libro => {
           const libroCard = document.createElement('div');
           libroCard.classList.add('libro-card');
-          let info_libro_url = encodeURIComponent(JSON.stringify(libro));
-
+          let info_libro = libro.enlace + "&&&%%%" + extension.nombre_extension;
+          const enlace_encode = btoa(info_libro); 
 
           libroCard.innerHTML = `
             
             <div class="libro-info">
               <h4>${libro.titulo}</h4>
-              <a href="/libros/libro/${info_libro_url}/">
+              <a href="/libros/libro/url/${enlace_encode}/">
                 <img src="${libro.foto}" alt="${libro.titulo}" />
               </a>
             </div>
