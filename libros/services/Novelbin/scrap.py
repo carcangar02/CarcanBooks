@@ -6,6 +6,11 @@ from libros.models import Extension
 extension_nombre = 'Novelbin'
 extension = Extension.objects.get(nombre=extension_nombre)
 
+
+
+
+
+
 def scrap_capitulo(enlace):
     scraper = cloudscraper.create_scraper()
     response = scraper.get(enlace)

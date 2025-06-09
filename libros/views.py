@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
 import base64
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 
@@ -56,13 +57,21 @@ def libro_details(request, libro_id=None, info_coded=None):
 
         libro_exist = Libro.objects.filter(enlace=enlace).exists()
         if libro_exist:
-            libro = Libro.objects.get(enlace=enlace)
-            libro_id = libro.id
+            libro_db = Libro.objects.get(enlace=enlace)
+            capitulos = libro_db.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
+            libro_id = libro_db.pk
+            titulo = libro_db.titulo
+            foto = libro_db.foto
+            enlace = libro_db.enlace
+            libreria = libro_db.libreria
+            extension = libro_db.extension.nombre
         else:
             extension_scrap = importlib.import_module(f'libros.services.{extension}.scrap')
             libro_scrapped = extension_scrap.scrap_libro_details(enlace) 
             capitulos = []
             libro_id = None
+            titulo= libro_scrapped['titulo']
+            foto = libro_scrapped['foto']
             libreria = None
             last_id = Capitulos.objects.latest('id').id
 
@@ -87,7 +96,9 @@ def libro_details(request, libro_id=None, info_coded=None):
             capitulos = libro_db.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
             extension_scrap = importlib.import_module(f'libros.services.{libro_db.extension.nombre}.scrap')
             libro_scrapped = extension_scrap.scrap_libro_details(libro_db.enlace)
+            titulo=libro_db.titulo
             enlace = libro_db.enlace
+            foto = libro_db.foto
             libreria = libro_db.libreria
             extension = libro_db.extension.nombre
 
@@ -107,7 +118,7 @@ def libro_details(request, libro_id=None, info_coded=None):
                     )
                     nuevo_capitulo.save()
                 else:
-                    print(f"Capítulo sin enlace o título en libro {libro.titulo} (ID {libro.id}): {cap}")
+                    print(f"Capítulo sin enlace o título en libro {libro_db.titulo} (ID {libro_db.id}): {cap}")
         
 
 
@@ -120,8 +131,8 @@ def libro_details(request, libro_id=None, info_coded=None):
     info_libro = {
         'id': libro_id,
         'enlace': enlace,
-        'titulo': libro_scrapped['titulo'],
-        'foto': libro_scrapped['foto'],
+        'titulo': titulo,
+        'foto': foto,
         'libreria': libreria,
         'extension': extension
     }
@@ -251,3 +262,47 @@ def cambiar_libreria(request):
         return JsonResponse({'error': 'Librería no encontrada.'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)   
+    
+
+
+
+
+
+def descarga_to_ebook(request) :
+    try:
+        libro_id = request.POST.get('libro_id')
+        libro = Libro.objects.get(pk=libro_id)
+        capitulos = Capitulos.objects.filter(libro=libro).values('enlace', 'libro')
+        extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
+        toEbbok = importlib.import_module('libros.services.toEbook')
+        html_caps = []
+
+
+        for cap in capitulos:
+            contenido = extension_scrap.scrap_capitulo(cap['enlace'])
+            print(f"Contenido scrap de {cap['enlace']}: tipo {type(contenido)}, longitud {len(contenido) if contenido else 'None'}")
+            if contenido is None:
+                print(f'❌ Contenido None en enlace: {cap["enlace"]}')
+            html_caps.append(contenido)
+
+    
+
+
+
+        bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps)
+
+
+
+
+
+        bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps)
+
+        response = HttpResponse(bueffer_ebook, content_type='application/epub+zip')
+        response['Content-Disposition'] = f'attachment; filename="{libro.titulo}.epub"'
+
+        return response
+
+
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': str(e)}, status=500)

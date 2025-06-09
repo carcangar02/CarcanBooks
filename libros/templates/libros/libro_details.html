@@ -14,14 +14,14 @@
                 <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
                 <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
                 <label for="switch">Toggle</label>
+                {%if libro.id%}
+                <button id="descargar_button">Descargar</button>
                 <select id="select_libreria" >
-                    {%if libro.id%}
                         {% for libreria in librerias %}
                             <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria.pk %}selected{% endif %}>{{ libreria.nombre }}</option>
                         {% endfor %}
-                    {%endif%}
-
-                </select>
+                    </select>
+                {%endif%}
             </div>
             <div>
                 <ul id="lista_capitulos">
@@ -127,4 +127,39 @@ document.getElementById("switch").addEventListener("change", (e) => {
         .then(data => console.log("Libro Eliminado:", data));
         }
     });
+
+
+
+
+
+
+
+document.getElementById("descargar_button").addEventListener("click", (e) => {
+    const formData = new FormData();
+    formData.append('libro_id', {{libro.id}});
+    cambiarLibreria(formData);
+
+});
+
+function cambiarLibreria(formData) {
+
+fetch('/libros/descarga_to_ebook/', {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: formData
+})
+.then(response => response.blob())
+.then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "{{libro.titulo}}.epub";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+})
+.catch(error => console.error(error.message));
+}
 </script>

@@ -12,5 +12,6 @@ urlpatterns = [
     path('cambio_status/', views.cambio_status, name='cambio_status'),
     path('buscador/', views.buscador, name='buscador'),
     path('busqueda/', views.busqueda, name='busqueda'),
+    path('descarga_to_ebook/', views.descarga_to_ebook, name='descarga_to_ebook'),
 
 ]
