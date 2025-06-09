@@ -49,14 +49,17 @@ capitulos.forEach((capitulo) => {
 
 
 
-document.getElementById("select_libreria").addEventListener("change", (e) => {
-    const libreriaId = e.target.value;
-    const formData = new FormData();
-    formData.append('nueva_libreria_id', libreriaId);
-    formData.append('libro_id', {{libro.id}});
-    cambiarLibreria(formData);
+const selectLibreria = document.getElementById("select_libreria");
 
-});
+if (selectLibreria) {
+    selectLibreria.addEventListener("change", (e) => {
+        const libreriaId = e.target.value;
+        const formData = new FormData();
+        formData.append('nueva_libreria_id', libreriaId);
+        formData.append('libro_id', None); // OJO: None no existe en JS, será null o el valor que necesites
+        cambiarLibreria(formData);
+    });
+}
 
 function cambiarLibreria(formData) {
 
@@ -134,12 +137,16 @@ document.getElementById("switch").addEventListener("change", (e) => {
 
 
 
-document.getElementById("descargar_button").addEventListener("click", (e) => {
-    const formData = new FormData();
-    formData.append('libro_id', {{libro.id}});
-    cambiarLibreria(formData);
+const descargarButton = document.getElementById("descargar_button");
 
-});
+if (descargarButton) {
+    descargarButton.addEventListener("click", (e) => {
+        const formData = new FormData();
+        formData.append('libro_id', {{libro.id}});
+        cambiarLibreria(formData);
+    });
+}
+
 
 function cambiarLibreria(formData) {
 

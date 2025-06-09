@@ -92,7 +92,6 @@ def libro_details(request, libro_id=None, info_coded=None):
 
         if libro_id:       
             libro_db = Libro.objects.get(pk=libro_id)
-            print(libro_db.enlace)
             capitulos = libro_db.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
             extension_scrap = importlib.import_module(f'libros.services.{libro_db.extension.nombre}.scrap')
             libro_scrapped = extension_scrap.scrap_libro_details(libro_db.enlace)
@@ -117,8 +116,13 @@ def libro_details(request, libro_id=None, info_coded=None):
                         visto=False
                     )
                     nuevo_capitulo.save()
+        
+
                 else:
                     print(f"Capítulo sin enlace o título en libro {libro_db.titulo} (ID {libro_db.id}): {cap}")
+            new_num_cap = libro_db.capitulos.count()
+            libro_db.num_capitulos = new_num_cap
+            libro_db.save()
         
 
 
@@ -157,9 +161,21 @@ def libro_details(request, libro_id=None, info_coded=None):
 def lector(request, capitulo_id):
     try:
         capitulo = Capitulos.objects.get(pk=capitulo_id)
-        extension_scrap = importlib.import_module(f'libros.services.{capitulo.libro.extension.nombre}.scrap')
+        libro = Libro.objects.get(id=capitulo.libro.pk)
+        extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
         contenido_capitulo = extension_scrap.scrap_capitulo(capitulo.enlace)
+        siguiente = capitulo_id +1
+        anterior = capitulo_id -1
+        siguiente_cap = Capitulos.objects.get(pk=siguiente)
+        anterior_cap = Capitulos.objects.get(pk=anterior)
+        if siguiente_cap.libro.pk != libro.pk:
+            siguiente=None
+        if anterior_cap.libro.pk != libro.pk:
+            anterior=None
+
         context = {
+            'anterior':anterior,
+            'siguiente':siguiente,
             'capitulo': capitulo,
             'contenido': contenido_capitulo,
         }
@@ -280,9 +296,6 @@ def descarga_to_ebook(request) :
 
         for cap in capitulos:
             contenido = extension_scrap.scrap_capitulo(cap['enlace'])
-            print(f"Contenido scrap de {cap['enlace']}: tipo {type(contenido)}, longitud {len(contenido) if contenido else 'None'}")
-            if contenido is None:
-                print(f'❌ Contenido None en enlace: {cap["enlace"]}')
             html_caps.append(contenido)
 
     
@@ -291,11 +304,6 @@ def descarga_to_ebook(request) :
 
         bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps)
 
-
-
-
-
-        bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps)
 
         response = HttpResponse(bueffer_ebook, content_type='application/epub+zip')
         response['Content-Disposition'] = f'attachment; filename="{libro.titulo}.epub"'

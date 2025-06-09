@@ -1,7 +1,8 @@
 import cloudscraper
 from bs4 import BeautifulSoup
 from libros.models import Extension
-
+import time
+import random
 
 extension_nombre = 'Novelbin'
 extension = Extension.objects.get(nombre=extension_nombre)
@@ -11,7 +12,12 @@ extension = Extension.objects.get(nombre=extension_nombre)
 
 
 
+
 def scrap_capitulo(enlace):
+    # Esperar entre 1 y 3 segundos antes de hacer la petición
+    delay = random.uniform(1.5, 3)
+    time.sleep(delay)
+
     scraper = cloudscraper.create_scraper()
     response = scraper.get(enlace)
 

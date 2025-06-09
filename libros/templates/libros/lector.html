@@ -1,9 +1,23 @@
 <html>
 <head>
-    <title>{{ libro.titulo }}</title>
+    <title>{{ capitulo.titulo }}</title>
 </head>
 <body>
+    {%if anterior %}
+    <a href="/libros/lector/{{anterior}}">Anterior</a>
+    {%endif%}
+    <a href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
+    {%if siguiente %}
+    <a href="/libros/lector/{{siguiente}}">Siguiente</a>
+    {%endif%}
     <div>
         {{contenido|safe}}
     </div>
+    {%if anterior %}
+    <a href="/libros/lector/{{anterior}}">Anterior</a>
+    {%endif%}
+    <a href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
+    {%if siguiente %}
+    <a href="/libros/lector/{{siguiente}}">Siguiente</a>
+    {%endif%}
 </html
