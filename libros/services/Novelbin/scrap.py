@@ -41,7 +41,7 @@ def scrap_libro_details(enlace):
         titulo_web = main.find('h3', class_='title')
 
 
-    titulo_enlace = titulo_web.text.strip().replace(" ", "-").lower()
+    titulo_enlace = titulo_web.text.strip().replace(" ", "-").lower().replace(":","")
 
     enlace_capitulos = f"https://novelbin.com/ajax/chapter-archive?novelId={titulo_enlace}"
     scraper_capitulos = cloudscraper.create_scraper()

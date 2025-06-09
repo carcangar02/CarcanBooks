@@ -13,10 +13,10 @@
                 <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
                 <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
                 <label for="switch">Toggle</label>
-                <select id="select_libreria">
+                <select id="select_libreria" >
                     {%if libro.id%}
                         {% for libreria in librerias %}
-                            <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria %}selected{% endif %}>{{ libreria.nombre }}</option>
+                            <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria.pk %}selected{% endif %}>{{ libreria.nombre }}</option>
                         {% endfor %}
                     {%endif%}
 
