@@ -9,6 +9,7 @@
     <body>
         <div> 
             <div class="libro-details">
+                <a href="/libros/">libreria</a>
                 <h1>{{ libro.titulo }}</h1>
                 <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
                 <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>

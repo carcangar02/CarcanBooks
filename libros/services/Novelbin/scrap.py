@@ -73,6 +73,7 @@ def scrap_libro_details(enlace):
 
 
 
+
 def scrap_busqueda(input):
     string_busqueda = input.strip().replace(" ", "+").lower()
     enlace = f"https://novelbin.me/search?keyword={string_busqueda}"

@@ -9,40 +9,20 @@ import base64
 
 def librerias_menu(request):
     librerias = Libreria.objects.values('pk', 'nombre')
-
     info_libros = []
     libros_qs = Libro.objects.prefetch_related('capitulos').all()
 
 
 
-
-
     for libro in libros_qs:
         try:
-            num_caps_db = len(libro.capitulos.all())
-            extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
-            libro_scrapped = extension_scrap.scrap_libro_details(libro.enlace)
+
             info_libros.append({
                 'id': libro.id,
                 'titulo': libro.titulo,
-                'foto': libro_scrapped['foto'],
+                'foto': libro.foto,
                 'libreria': libro.libreria_id
             })
-            num_caps_web = len(libro_scrapped['capitulos'])
-            if num_caps_db != num_caps_web and num_caps_web > 0:
-                diferencia = num_caps_web - num_caps_db
-                for cap in libro_scrapped['capitulos'][-diferencia:]:
-                    if 'href' in cap and 'title' in cap:
-                        nuevo_capitulo = Capitulos(
-                            enlace=cap['href'],
-                            libro=libro,
-                            titulo=cap['title'],
-                            visto=False
-                        )
-                        nuevo_capitulo.save()
-                    else:
-                        print(f"Capítulo sin enlace o título en libro {libro.titulo} (ID {libro.id}): {cap}")
-
 
 
 
@@ -82,20 +62,22 @@ def libro_details(request, libro_id=None, info_coded=None):
             extension_scrap = importlib.import_module(f'libros.services.{extension}.scrap')
             libro_scrapped = extension_scrap.scrap_libro_details(enlace) 
             capitulos = []
-            last_capitulo = Capitulos.objects.order_by('-id').first()
-            last_libro = Libro.objects.order_by('-id').first()
             libro_id = None
-            next_id = last_capitulo.id 
-            
+            libreria = None
+            last_id = Capitulos.objects.latest('id').id
+
             for cap in libro_scrapped['capitulos']:
-                next_id += 1
+                last_id += 1
                 capitulos.append({
-                    'id': next_id,
+                    'id': last_id,
                     'titulo': cap['title'],
                     'enlace': cap['href'],
                     'visto': False
-                })
-            libreria = None
+            })
+
+
+
+
     else:      
 
 
@@ -109,6 +91,26 @@ def libro_details(request, libro_id=None, info_coded=None):
             libreria = libro_db.libreria
             extension = libro_db.extension.nombre
 
+    
+        num_caps_db = libro_db.num_capitulos
+        num_caps_web=len(libro_scrapped['capitulos'])
+
+        if num_caps_db != num_caps_web and num_caps_web > 0:
+            diferencia = num_caps_web - num_caps_db
+            for cap in libro_scrapped['capitulos'][-diferencia:]:
+                if 'href' in cap and 'title' in cap:
+                    nuevo_capitulo = Capitulos(
+                        enlace=cap['href'],
+                        libro=libro_db,
+                        titulo=cap['title'],
+                        visto=False
+                    )
+                    nuevo_capitulo.save()
+                else:
+                    print(f"Capítulo sin enlace o título en libro {libro.titulo} (ID {libro.id}): {cap}")
+        
+
+
 
 
 
@@ -120,7 +122,6 @@ def libro_details(request, libro_id=None, info_coded=None):
         'enlace': enlace,
         'titulo': libro_scrapped['titulo'],
         'foto': libro_scrapped['foto'],
-        'capitulos':libro_scrapped['capitulos'],
         'libreria': libreria,
         'extension': extension
     }
@@ -213,6 +214,7 @@ def cambio_status(request):
             Libro.objects.create(
                 titulo=libro_info.get('titulo'),
                 enlace=libro_info.get('enlace'),
+                foto=libro_info.get('foto'),
                 libreria=libreria_create,
                 extension=extension_create
             )

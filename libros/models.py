@@ -19,7 +19,9 @@ class Extension(models.Model):
 
 class Libro(models.Model):
     titulo = models.CharField(max_length=200)
+    foto = models.URLField(max_length=500, blank=True, null=True)
     enlace = models.URLField(max_length=200, unique=True)
+    num_capitulos = models.IntegerField(default=0)
     libreria = models.ForeignKey(Libreria, on_delete=models.CASCADE, related_name='libros')
     extension = models.ForeignKey(Extension, on_delete=models.CASCADE, related_name='libros', default=None )
     
