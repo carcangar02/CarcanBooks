@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-==-kf^%(4!x4kxyk@2utnek$$p=*f6=!5%zc-8)w%(w^b*bh4&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.137','127.0.0.1']
+ALLOWED_HOSTS = ['192.168.1.137','127.0.0.1','192.168.1.202']
 
 
 # Application definition
@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'carcanbooks.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'Carcanbooks',
+        'USER':'postgres',
+        'PASSWORD':'cocacolacarcan24',
+        'PORT':'5432',
+        'HOST':'localhost',
     }
 }
 

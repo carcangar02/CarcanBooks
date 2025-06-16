@@ -4,7 +4,7 @@
     <head>
         <title>{{ libro.titulo }}</title>
         <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
-
+        
     </head>
     <body>
         <div> 
@@ -56,7 +56,7 @@ if (selectLibreria) {
         const libreriaId = e.target.value;
         const formData = new FormData();
         formData.append('nueva_libreria_id', libreriaId);
-        formData.append('libro_id', None); // OJO: None no existe en JS, será null o el valor que necesites
+        formData.append('libro_id', {{libro.id}}); // OJO: None no existe en JS, será null o el valor que necesites
         cambiarLibreria(formData);
     });
 }
@@ -129,7 +129,7 @@ document.getElementById("switch").addEventListener("change", (e) => {
         .then(response => response.json())
         .then(data => console.log("Libro Eliminado:", data));
         }
-    });
+});
 
 
 
@@ -143,12 +143,12 @@ if (descargarButton) {
     descargarButton.addEventListener("click", (e) => {
         const formData = new FormData();
         formData.append('libro_id', {{libro.id}});
-        cambiarLibreria(formData);
+        descargarLibro(formData);
     });
 }
 
 
-function cambiarLibreria(formData) {
+function descargarLibro(formData) {
 
 fetch('/libros/descarga_to_ebook/', {
     method: 'POST',

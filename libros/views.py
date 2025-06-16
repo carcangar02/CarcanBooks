@@ -73,7 +73,10 @@ def libro_details(request, libro_id=None, info_coded=None):
             titulo= libro_scrapped['titulo']
             foto = libro_scrapped['foto']
             libreria = None
-            last_id = Capitulos.objects.latest('id').id
+            try:
+                last_id = Capitulos.objects.latest('id').id
+            except:
+                last_id=0
 
             for cap in libro_scrapped['capitulos']:
                 last_id += 1
@@ -202,6 +205,7 @@ def busqueda(request):
     input_busqueda = request.POST.get('input_busqueda')
     Extensiones = Extension.objects.values('nombre')
     array_resultados = []
+    
     try:
         for extension in Extensiones:
             nombre_extension = extension['nombre']
@@ -212,10 +216,12 @@ def busqueda(request):
                 'nombre_extension': nombre_extension,
                 'resultados': resultado_busqueda
             })
+            
         return JsonResponse(array_resultados, safe=False, status=200)
     except ImportError as e:
         print(f"Error al importar el módulo de extensión {nombre_extension}: {e}")
     except Exception as e:
+        print(input_busqueda)
         print(f"Error al ejecutar la búsqueda para la extensión {nombre_extension}: {e}")
 
 
