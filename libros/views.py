@@ -96,6 +96,7 @@ def libro_details(request, libro_id=None, info_coded=None):
         if libro_id:       
             libro_db = Libro.objects.get(pk=libro_id)
             capitulos = libro_db.capitulos.all().values('id', 'titulo', 'enlace', 'visto')
+            capitulos = capitulos.order_by('id')
             extension_scrap = importlib.import_module(f'libros.services.{libro_db.extension.nombre}.scrap')
             libro_scrapped = extension_scrap.scrap_libro_details(libro_db.enlace)
             titulo=libro_db.titulo
@@ -183,8 +184,7 @@ def lector(request, capitulo_id):
             'contenido': contenido_capitulo,
         }
         return render(request, "libros/lector.html", context)
-    except Capitulos.DoesNotExist:
-        return JsonResponse({'error': 'Capítulo no encontrado.'}, status=404)
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
     

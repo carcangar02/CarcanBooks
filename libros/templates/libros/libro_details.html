@@ -4,14 +4,19 @@
     <head>
         <title>{{ libro.titulo }}</title>
         <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
-        
     </head>
     <body>
         <div> 
+            <a href="/libros/" class="btn-navegacion">Libreria</a>
+
             <div class="libro-details">
-                <a href="/libros/">libreria</a>
-                <h1>{{ libro.titulo }}</h1>
-                <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
+                <header>
+                    <h1>{{ libro.titulo }}</h1>
+                </header>
+                <div id ="libro-img">
+                    <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
+                </div>
+                
                 <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
                 <label for="switch">Toggle</label>
                 {%if libro.id%}
@@ -23,11 +28,13 @@
                     </select>
                 {%endif%}
             </div>
-            <div>
-                <ul id="lista_capitulos">
 
-                </ul>
+            
+            <div id="div-capitulos">
+                <ul id="lista_capitulos"></ul>
             </div>
+
+
         </div>
     </body>
 </html>

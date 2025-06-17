@@ -1,3 +1,281 @@
+/* libros/styles.css */
+
+/* static/libros/styles.css */
+
+/* Reset y tema base */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Header */
+#menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1f1f1f;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* Botón buscador */
+.btn-buscador {
+    background-color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-buscador a {
+    text-decoration: none;
+    color: #f0f0f0;
+}
+
+.btn-buscador:hover {
+    background-color: #555;
+}
+
+/* Select centrado en header */
+#select_libreria {
+    background-color: rgba(0,0,0,0);
+    color: #f0f0f0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    appearance: none;
+    font-size: 16px;
+}
+
+#select_libreria:focus {
+    outline: none;
+    border: 2px solid #888; /* o el color que prefieras */
+    box-shadow: 0 0 5px #444; /* suave sombra para indicar foco */
+}
+
+
+/* Opciones dentro del select */
+#select_libreria option {
+    background-color: #1f1f1f;
+    color: #f0f0f0;
+}
+
+/* Div de libros (contenedor) */
+#div_libros {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Tarjeta de libro */
+#div_libros div {
+    background-color: #1f1f1f;
+    padding: 10px;
+    border-radius: 8px;
+    width: 120px;
+    text-align: center;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+#div_libros div:hover {
+    transform: scale(1.05);
+    background-color: #2a2a2a;
+}
+
+#div_libros img {
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+#div_libros p {
+    margin: 0;
+    font-size: 14px;
+    color: #f0f0f0;
+    white-space: nowrap;         /* no se parte en varias líneas */
+    overflow: hidden;            /* lo que sobre, se oculta */
+    text-overflow: ellipsis;     /* y se indica con "..." */
+    max-width: 100%;             /* asegura que no se desborde */
+}
+
+
+a {
+    color: #82aaff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.libro-details {
+    padding: 20px;
+}
+
+#libro-img img {
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+}
+
+#descargar_button {
+    background-color: #3a3a3a;
+    color: #eee;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#descargar_button:hover {
+    background-color: #5a5a5a;
+}
+
+#div-capitulos {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #333;
+    padding: 10px;
+    margin: 20px;
+    border-radius: 5px;
+    background-color: #1e1e1e;
+}
+
+#lista_capitulos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#lista_capitulos li {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+}
+
+#lista_capitulos li:last-child {
+    border-bottom: none;
+}
+
+#lista_capitulos li.visto a {
+    color: #66bb6a;
+}
+
+#lista_capitulos li.no_visto a {
+    color: #82aaff;
+}
+
+
+.btn-navegacion {
+    background-color: #2752a0;
+    color: #eee;
+    border: none;
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin: 12px;
+}
+
+.btn-navegacion:hover {
+    background-color: #1a3870;
+}
+
+
+
+
+
+.buscador-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+/* Estilo del input */
+#input_busqueda {
+    padding: 6px 10px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    min-width: 250px;
+}
+
+/* Cada bloque de extensión */
+/* Cada bloque de extensión */
+.extension-result {
+  margin: 30px 0;
+  padding: 10px;
+}
+
+/* Título de la extensión */
+.extension-result h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+.libros-scroll {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+}
+.libros-scroll div {
+    background-color: #1f1f1f;
+    padding: 10px;
+    border-radius: 8px;
+    width: 120px;
+    text-align: center;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.libros-scroll div:hover {
+    transform: scale(1.05);
+    background-color: #2a2a2a;
+}
+
+.libros-scroll img {
+    border-radius: 4px;
+    margin-bottom: 8px;
+    max-width: 100%; /* Esto asegura que nunca sobrepase el ancho de su contenedor */
+}
+
+.libros-scroll p {
+    margin: 0;
+    font-size: 14px;
+    color: #f0f0f0;
+    white-space: nowrap;         /* no se parte en varias líneas */
+    overflow: hidden;            /* lo que sobre, se oculta */
+    text-overflow: ellipsis;     /* y se indica con "..." */
+    max-width: 100%;             /* asegura que no se desborde */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---------Boton de encendido/apagado con CSS puro--------- */
 input[type=checkbox] {
     height: 0;
@@ -42,3 +320,8 @@ label:active:after {
 }
 
 /* ---------Boton de encendido/apagado con CSS puro--------- */
+
+
+
+
+

@@ -1,19 +1,28 @@
+{% load static%}
 
 <html>
     <head>
-        
+        <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
+
     </head>
     <body>
-        <button>
-            <a href="/libros/buscador">Buscador</a>
-        </button>
-        <select id="select_libreria">
-            <option value="">Todas</option>
-            {% for libreria in librerias %}
-                <option value="{{ libreria.pk }}" {% if libreria.pk == 1 %}selected{% endif %}>{{ libreria.nombre }}</option>
-            {% endfor %}
-        </select>
+        <div id="menu-header">
+            <div>               
+                    <a href="/libros/buscador" class="btn-navegacion">Buscador</a>
+            </div>
 
+            <div id >
+                <select id="select_libreria">
+                    <option value="">Todas</option>
+                    {% for libreria in librerias %}
+                        <option value="{{ libreria.pk }}" {% if libreria.pk == 1 %}selected{% endif %}>{{ libreria.nombre }}</option>
+                    {% endfor %}
+                </select> 
+            </div>
+
+           
+        </div>
+        
         <div id="div_libros"></div>
     </body>
 </html>
@@ -45,7 +54,7 @@ function renderLibros(filtroLibreria = null) {
         div.innerHTML = `
             <p>${libro.titulo}</p>
             <a href="/libros/libro/id/${libro.id}/">
-            <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
+                <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
             </a>
         `;
         container.appendChild(div);
