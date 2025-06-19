@@ -170,12 +170,22 @@ def lector(request, capitulo_id):
         contenido_capitulo = extension_scrap.scrap_capitulo(capitulo.enlace)
         siguiente = capitulo_id +1
         anterior = capitulo_id -1
-        siguiente_cap = Capitulos.objects.get(pk=siguiente)
-        anterior_cap = Capitulos.objects.get(pk=anterior)
-        if siguiente_cap.libro.pk != libro.pk:
+
+        try:
+            siguiente_cap = Capitulos.objects.get(pk=siguiente) 
+            if siguiente_cap.libro.pk != libro.pk:
+                siguiente=None
+        except:
             siguiente=None
-        if anterior_cap.libro.pk != libro.pk:
+        
+        try:
+            anterior_cap = Capitulos.objects.get(pk=anterior)
+            if anterior_cap.libro.pk != libro.pk:
+                anterior=None
+        except:
             anterior=None
+
+
 
         context = {
             'anterior':anterior,
