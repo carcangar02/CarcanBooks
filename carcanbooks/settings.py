@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'carcanbooks.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Carcanbooks',
+        'NAME': 'carcanbooks',
         'USER':'postgres',
-        'PASSWORD':'cocacolacarcan24',
+        'PASSWORD':'5523',
         'PORT':'5432',
         'HOST':'localhost',
     }
