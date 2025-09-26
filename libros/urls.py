@@ -4,7 +4,7 @@ from . import views
 app_name = 'carcanbooks'  # para usar namespace en templates o reverses
 
 urlpatterns = [
-    path('', views.librerias_menu, name='librerias_menu'),
+    path('librerias/', views.librerias_menu, name='librerias_menu'),
     path('libro/id/<int:libro_id>/', views.libro_details, name='libro_details'),
     path('libro/url/<str:info_coded>/', views.libro_details, name='libro_details'),
     path('lector/<int:capitulo_id>/', views.lector, name='lector'),
@@ -13,5 +13,7 @@ urlpatterns = [
     path('buscador/', views.buscador, name='buscador'),
     path('busqueda/', views.busqueda, name='busqueda'),
     path('descarga_to_ebook/', views.descarga_to_ebook, name='descarga_to_ebook'),
+    path('login/', views.login_view, name='login_view'),
+    path('login_action/', views.login_action, name='login_action'),
 
 ]

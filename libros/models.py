@@ -1,10 +1,14 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
+
+
+
+
 class Libreria(models.Model):
-    # id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='librerias')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='librerias')
     nombre = models.CharField(max_length=100, unique=True)
-    
+    libros = models.ManyToManyField('Libro', related_name='librerias', blank=True)
 
     def __str__(self):
         return self.nombre
@@ -23,7 +27,6 @@ class Libro(models.Model):
     foto = models.URLField(max_length=500, blank=True, null=True)
     enlace = models.URLField(max_length=200, unique=True)
     num_capitulos = models.IntegerField(default=0)
-    libreria = models.ForeignKey(Libreria, on_delete=models.CASCADE, related_name='libros')
     extension = models.ForeignKey(Extension, on_delete=models.CASCADE, related_name='libros', default=None )
     
     def __str__(self):
@@ -37,10 +40,3 @@ class Capitulos(models.Model):
     def __str__(self):
         return self.titulo
 
-### class Usuario(models.Model):
-#     username = models.CharField(max_length=100, unique=True)
-#     password = models.CharField(max_length=100)
-#     libreria = models.ForeignKey(Libreria, on_delete=models.CASCADE, related_name='usuarios')
-#
-#     def __str__(self):
-#         return self.username

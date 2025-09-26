@@ -44,9 +44,15 @@ Añadir Manga
 
 --------------------------LOGIN--------------------------------
 
-login normal
-Poder mantener la sesion abierta o tener que volver a hacer login
-Que se guarde si el usuario quiere mantener la sesion abierta
+
+*login normal 
+*Poder mantener la sesion abierta o tener que volver a hacer login
+
+
+
+*cada usuario tiene sus librerias, los libros se añaden automaticamente a la mas antigua
+se deben poder crear librerias, que al añadir libros, no se creen nuevas instancias,
+es decir, si el libro ya existe en la bbdd, reutilizar esa informacion 
 
 --------------------------LOGIN--------------------------------
 
