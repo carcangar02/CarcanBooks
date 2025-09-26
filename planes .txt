@@ -6,7 +6,7 @@ https://novelfull.net
 https://en.lightnovelplus.com
 
 
-Crunchyroll
+Crunchyroll (API)
 Leercapitulo
 TuMangaOnline
 
@@ -15,10 +15,38 @@ TuMangaOnline
 
 
 
+
+
+
+
+
+
 --------------------------TAREAS-------------------------------
-Añadir usuarios y login
+
+Añadir usuarios y login --LOGIN
 
 Añadir anime
 Añadir Manga
+
 --------------------------TAREAS-------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------LOGIN--------------------------------
+
+login normal
+Poder mantener la sesion abierta o tener que volver a hacer login
+Que se guarde si el usuario quiere mantener la sesion abierta
+
+--------------------------LOGIN--------------------------------
 

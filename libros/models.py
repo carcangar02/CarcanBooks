@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Libreria(models.Model):
+    # id_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='librerias')
     nombre = models.CharField(max_length=100, unique=True)
     
 
@@ -35,3 +36,11 @@ class Capitulos(models.Model):
     visto = models.BooleanField(default=False)
     def __str__(self):
         return self.titulo
+
+### class Usuario(models.Model):
+#     username = models.CharField(max_length=100, unique=True)
+#     password = models.CharField(max_length=100)
+#     libreria = models.ForeignKey(Libreria, on_delete=models.CASCADE, related_name='usuarios')
+#
+#     def __str__(self):
+#         return self.username

@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from .models import Libreria, Libro, Capitulos, Extension
+from .models import Libreria, Libro, Capitulos, Extension, Usuario
 import importlib
 import json
 import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout 
 
 def librerias_menu(request):
     librerias = Libreria.objects.values('pk', 'nombre')
@@ -330,3 +330,32 @@ def descarga_to_ebook(request) :
     except Exception as e:
         print(e)
         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
+def login_view(request):
+    cookie_info = request.COOKIES.get('carcanbooks_info')
+
+    return render(request, "libros/login.html")
+
+
+
+def login_action(request):
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        # El usuario y contraseña son correctos
+        login(request, user) # Esto crea la sesión segura
+        # Redirigir a la página de éxito
+    else:
+        # Error de autenticación
+        return JsonResponse({'error': 'Credenciales inválidas.'}, status=401)
+
+
+
+
