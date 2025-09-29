@@ -77,11 +77,11 @@ def signup_action(request):
 @login_required
 def librerias_menu(request):
     user_id = request.user.id
-    librerias = Libreria.objects.filter(usuario=user_id).prefetch_related('pk', 'nombre')
+    librerias = Libreria.objects.filter(usuario=user_id).values('pk', 'nombre')
     info_libros = []
-    libros_qs = Libreria.objects.filter(usuario=user_id).prefetch_related('libros')
-
-
+    lista_libros = Libreria.objects.filter(usuario=user_id).values('libros')
+    libros_qs = Libro.objects.filter(pk__in=lista_libros).distinct()
+    
 
     for libro in libros_qs:
         try:
@@ -112,6 +112,7 @@ def librerias_menu(request):
 
 
 
+@login_required
 
 def libro_details(request, libro_id=None, info_coded=None):
     if libro_id is None and info_coded is not None:
@@ -200,14 +201,13 @@ def libro_details(request, libro_id=None, info_coded=None):
 
 
 
-    librerias  = Libreria.objects.values('pk', 'nombre')
+    librerias  = Libreria.objects.filter(usuario=request.user).values('pk', 'nombre')
 
     info_libro = {
         'id': libro_id,
         'enlace': enlace,
         'titulo': titulo,
         'foto': foto,
-        'libreria': libreria,
         'extension': extension
     }
 
@@ -227,6 +227,7 @@ def libro_details(request, libro_id=None, info_coded=None):
 
 
 
+@login_required
 
 def lector(request, capitulo_id):
     try:
@@ -268,6 +269,7 @@ def lector(request, capitulo_id):
 
 
 
+@login_required
 
 def buscador(request):
     return render(request, "libros/buscador.html" )
@@ -276,6 +278,7 @@ def buscador(request):
 
 
 
+@login_required
 
 def busqueda(request):
     input_busqueda = request.POST.get('input_busqueda')
@@ -305,6 +308,7 @@ def busqueda(request):
 
 
 
+@login_required
 
 def cambio_status(request):
 
@@ -344,6 +348,7 @@ def cambio_status(request):
 
 
 
+@login_required
 
 def cambiar_libreria(request):
     try:
@@ -363,11 +368,24 @@ def cambiar_libreria(request):
         return JsonResponse({'error': 'Librería no encontrada.'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)   
-    
+
+
+
+@login_required
+
+def crear_libreria(request):
+    try:
+        nombre_libreria = request.POST.get('nombreLista')
+        usuario = request.user
+        nueva_libreria = Libreria.objects.create(nombre=nombre_libreria, usuario=usuario)
+        return JsonResponse({'message': 'Librería creada correctamente.', 'libreria_id': nueva_libreria.id}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 
 
+@login_required
 
 def descarga_to_ebook(request) :
     try:

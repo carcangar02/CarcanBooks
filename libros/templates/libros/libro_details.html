@@ -19,14 +19,14 @@
                 
                 <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
                 <label for="switch">Toggle</label>
-                {%if libro.id%}
+
                 <button id="descargar_button">Descargar</button>
                 <select id="select_libreria" >
                         {% for libreria in librerias %}
                             <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria.pk %}selected{% endif %}>{{ libreria.nombre }}</option>
                         {% endfor %}
                     </select>
-                {%endif%}
+
             </div>
 
             
@@ -94,7 +94,7 @@ document.getElementById("switch").addEventListener("change", (e) => {
         'titulo': '{{ libro.titulo}}',
         'enlace': '{{ libro.enlace }}',
         'foto': '{{ libro.foto }}',
-        'libreria': 2,
+        'libreria': 2, //CUIDADOOOO
         'extension': '{{ libro.extension }}',
     }
     formData.append('libro_id', '{{libro.id}}');

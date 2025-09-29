@@ -107,16 +107,18 @@ window.onclick = function(event) {
 }
 
 
-document.getElementById("nombreLista").addEventListener("keydown", enviarFormulario);
+
+
 document.getElementById("guardarListaBtn").addEventListener("click", enviarFormulario);
 
     
 async function enviarFormulario(event) {
-        event.preventDefault(); // Evita que el formulario se envíe
+        event.preventDefault();
+        
         const nombreLista = document.getElementById("nombreLista").value;
         if (nombreLista) {
             const formData = new FormData();
-            formData.append('nombre', nombreLista);
+            formData.append('nombreLista', nombreLista);
             const response = await fetch('/libros/crear_libreria/', {
                 method: 'POST',
                 headers: {
@@ -146,5 +148,8 @@ async function enviarFormulario(event) {
         }
     
 }
+
+
+
 
 </script>

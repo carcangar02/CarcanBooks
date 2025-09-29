@@ -11,7 +11,9 @@ en el libro details del libro a agregar, tener un despegable con las librerias d
 usuario para que al darle a cambiar status, se abregue en la libreria seleccionada
 
 
-ATENTO librerias_menu(55,135)
+ATENTO 
+librerias_menu(55,135)
+libro_details(97)
 
 
 Estoy en librerias_menu.html haciendo la peticion en la linea 135

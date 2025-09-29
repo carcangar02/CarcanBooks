@@ -17,6 +17,7 @@ urlpatterns = [
     path('login_action/', views.login_action, name='login_action'),
     path('signup/', views.signup_view, name='signup_view'),
     path('signup_action/', views.signup_action, name='signup_action'),
+    path('crear_libreria/', views.crear_libreria, name='crear_libreria'),
 
 
 ]
