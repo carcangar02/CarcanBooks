@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
-from .models import Libreria, Libro, Capitulos, Extension, Usuario
+from django.shortcuts import redirect, render
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
+from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
 import base64
@@ -8,10 +8,58 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
 
+
+
+
+
+
+def login_view(request):
+    cookie_info = request.COOKIES.get('carcanbooks_info')
+    if cookie_info:
+        try:
+            username, password = cookie_info.split('&&&%%%')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user) 
+                return redirect('/libros/librerias/')
+        except Exception as e:
+            print(f"Error al procesar la cookie de autenticación: {e}")
+    else:
+        return render(request, "libros/login_view.html")
+
+
+
+def login_action(request):
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    
+    user = authenticate(request, username=username, password=password)
+    
+    if user is not None:
+        login(request, user)
+        response = JsonResponse({
+            'message': 'Inicio de sesión exitoso. Redirigiendo...',
+            'redirect_url': '/libros/librerias/'
+        })
+        response.set_cookie('carcanbooks_info', f'{username}&&&%%%{password}', max_age=30*24*60*60)  # Cookie válida por 30 días
+        return response
+    else:
+        # Error de autenticación
+        return JsonResponse({'error': 'Credenciales inválidas.'}, status=401)
+
+
+
+
+
+
+
+
+
 def librerias_menu(request):
-    librerias = Libreria.objects.values('pk', 'nombre')
+    user_id = request.user.id
+    librerias = Libreria.objects.filter(usuario=user_id).prefetch_related('pk', 'nombre')
     info_libros = []
-    libros_qs = Libro.objects.prefetch_related('capitulos').all()
+    libros_qs = Libreria.objects.filter(usuario=user_id).prefetch_related('libros')
 
 
 
@@ -22,7 +70,6 @@ def librerias_menu(request):
                 'id': libro.id,
                 'titulo': libro.titulo,
                 'foto': libro.foto,
-                'libreria': libro.libreria_id
             })
 
 
@@ -241,6 +288,9 @@ def busqueda(request):
 
 
 def cambio_status(request):
+
+
+    # tengo que eliminar el libro solo de la libreria del usuario
     try:
         status=request.POST.get('status')
         libro_id = request.POST.get('libro_id')
@@ -335,26 +385,6 @@ def descarga_to_ebook(request) :
 
 
 
-def login_view(request):
-    cookie_info = request.COOKIES.get('carcanbooks_info')
-
-    return render(request, "libros/login.html")
-
-
-
-def login_action(request):
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    
-    user = authenticate(request, username=username, password=password)
-    
-    if user is not None:
-        # El usuario y contraseña son correctos
-        login(request, user) # Esto crea la sesión segura
-        # Redirigir a la página de éxito
-    else:
-        # Error de autenticación
-        return JsonResponse({'error': 'Credenciales inválidas.'}, status=401)
 
 
 

@@ -6,7 +6,7 @@ from django.db import models
 
 
 class Libreria(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='librerias')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='librerias', default=None)
     nombre = models.CharField(max_length=100, unique=True)
     libros = models.ManyToManyField('Libro', related_name='librerias', blank=True)
 

@@ -33,7 +33,7 @@
                 const response = await fetch('/libros/login_action/', {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': csrfToken
+                       'X-CSRFToken': '{{ csrf_token }}'
                     },
                     body: formData
                 });
