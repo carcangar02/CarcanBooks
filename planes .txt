@@ -1,3 +1,16 @@
+---------------------ULTIMO HECHO----------------------------
+Terminado el login y el signup, creado el modal de agregar librerias, 
+estoy haciendo la funcion de crear librerias, quedaria cambiar toda la 
+logica para que los libros no contengan informacion de a que libreria pertenecen,
+es decir que todo eso se gestione desde la libreria y mediante variables de session
+
+
+
+
+
+
+
+
 
 ---------------------AÑADIR FUENTES----------------------------
 
@@ -28,6 +41,16 @@ Añadir usuarios y login --LOGIN
 Añadir anime
 Añadir Manga
 
+
+
+Poder crear librerias
+
+Poder organizar los libros (ultimo leido, nombre, num capitulos etc)
+
+que al añadir libros, no se creen nuevas instancias,
+es decir, si el libro ya existe en la bbdd, reutilizar esa informacion 
+
+
 --------------------------TAREAS-------------------------------
 
 
@@ -40,19 +63,4 @@ Añadir Manga
 
 
 
-
-
---------------------------LOGIN--------------------------------
-
-
-*login normal 
-*Poder mantener la sesion abierta o tener que volver a hacer login
-
-
-
-*cada usuario tiene sus librerias, los libros se añaden automaticamente a la mas antigua
-se deben poder crear librerias, que al añadir libros, no se creen nuevas instancias,
-es decir, si el libro ya existe en la bbdd, reutilizar esa informacion 
-
---------------------------LOGIN--------------------------------
 

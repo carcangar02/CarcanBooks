@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
 </head>
 <body>
-    <h1>Iniciar Sesión</h1>
+    <h1>Registrarse</h1>
     <form id="login-form">
         {% csrf_token %}
         <div for="username">Usuario:</div>
@@ -14,11 +14,10 @@
         <div for="password">Contraseña:</div>
         <input type="password" id="password" name="password" required><br>
 
-        <button type="submit">Iniciar Sesión</button>
+        <button type="submit">Registrarse</button>
     </form>
-    <footer><a href="{% url 'carcanbooks:signup_view' %}">Registrarse</a></footer>  
+    <footer><a href="{% url 'carcanbooks:login_view' %}">Iniciar Sesión</a></footer>  
     <div id="message-container"></div>
-
 
     <script>
         document.getElementById('login-form').addEventListener('submit', async function(event) {
@@ -32,7 +31,7 @@
             formData.append('username', username);
             formData.append('password', password);
             try {
-                const response = await fetch('/libros/login_action/', {
+                const response = await fetch('/libros/signup_action/', {
                     method: 'POST',
                     headers: {
                        'X-CSRFToken': '{{ csrf_token }}'

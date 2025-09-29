@@ -7,6 +7,7 @@ import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -48,13 +49,32 @@ def login_action(request):
         return JsonResponse({'error': 'Credenciales inválidas.'}, status=401)
 
 
+def signup_view(request):
+    return render(request, "libros/signup_view.html")
+
+
+
+def signup_action(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = User.objects.create_user(username=username, password=password)
+        login(request, user)
+        response = JsonResponse({
+            'message': 'Registro exitoso. Redirigiendo...',
+            'redirect_url': '/libros/librerias/'
+        })
+        response.set_cookie('carcanbooks_info', f'{username}&&&%%%{password}', max_age=30*24*60*60)  # Cookie válida por 30 días
+        return response
+        
+    return JsonResponse({"error": "Método no permitido."}, status=405)
 
 
 
 
 
-
-
+@login_required
 def librerias_menu(request):
     user_id = request.user.id
     librerias = Libreria.objects.filter(usuario=user_id).prefetch_related('pk', 'nombre')
@@ -110,7 +130,6 @@ def libro_details(request, libro_id=None, info_coded=None):
             titulo = libro_db.titulo
             foto = libro_db.foto
             enlace = libro_db.enlace
-            libreria = libro_db.libreria
             extension = libro_db.extension.nombre
         else:
             extension_scrap = importlib.import_module(f'libros.services.{extension}.scrap')

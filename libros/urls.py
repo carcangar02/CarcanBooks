@@ -15,5 +15,8 @@ urlpatterns = [
     path('descarga_to_ebook/', views.descarga_to_ebook, name='descarga_to_ebook'),
     path('login/', views.login_view, name='login_view'),
     path('login_action/', views.login_action, name='login_action'),
+    path('signup/', views.signup_view, name='signup_view'),
+    path('signup_action/', views.signup_action, name='signup_action'),
+
 
 ]
