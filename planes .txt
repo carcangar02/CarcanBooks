@@ -6,6 +6,18 @@ es decir que todo eso se gestione desde la libreria y mediante variables de sess
 
 
 
+El añadir libros a librerias, tengo la id de la libreria hardcodeada (view.py[323]), tendria que,
+en el libro details del libro a agregar, tener un despegable con las librerias del 
+usuario para que al darle a cambiar status, se abregue en la libreria seleccionada
+
+
+ATENTO librerias_menu(55,135)
+
+
+Estoy en librerias_menu.html haciendo la peticion en la linea 135
+
+---------------------ULTIMO HECHO----------------------------
+
 
 
 

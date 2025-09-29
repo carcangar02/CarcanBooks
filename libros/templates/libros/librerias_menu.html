@@ -31,7 +31,7 @@
                     <form>
                         <div for="nombreLista">Nombre de la lista:</div><br>
                         <input type="text" id="nombreLista" name="nombreLista"><br><br>
-                        <button type="submit" class="btn-navegacion">Guardar</button>
+                        <button type="submit" id="guardarListaBtn" class="btn-navegacion">Guardar</button>
                     </form>
                 </div>
             </div>
@@ -52,8 +52,8 @@
 const libros = JSON.parse('{{ info_libros|escapejs }}');
 const container = document.getElementById("div_libros");
 
-// Función para renderizar libros
-function renderLibros(filtroLibreria = null) {
+// Función para renderizar libros ||||||||   TENGO QUE CAMBIAR ESTO DEBIDO A LA MODIFICACION DE LA LOGICA LIBRO/LIBRERIA
+function renderLibros(filtroLibreria = null) {    
     container.innerHTML = "";
     let filtrados = libros;
 
@@ -87,25 +87,64 @@ document.getElementById("select_libreria").addEventListener("change", (e) => {
 
 
 
-// Obtener los elementos del DOM
 var modal = document.getElementById("miModal");
 var btn = document.getElementById("abrirModalBtn");
 var span = document.getElementsByClassName("cerrar")[0];
 
-// Cuando el usuario hace clic en el botón, abre el modal
+
 btn.onclick = function() {
   modal.style.display = "block";
 }
 
-// Cuando el usuario hace clic en la "x", cierra el modal
 span.onclick = function() {
   modal.style.display = "none";
 }
 
-// Cuando el usuario hace clic fuera del modal, también lo cierra
 window.onclick = function(event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
 }
+
+
+document.getElementById("nombreLista").addEventListener("keydown", enviarFormulario);
+document.getElementById("guardarListaBtn").addEventListener("click", enviarFormulario);
+
+    
+async function enviarFormulario(event) {
+        event.preventDefault(); // Evita que el formulario se envíe
+        const nombreLista = document.getElementById("nombreLista").value;
+        if (nombreLista) {
+            const formData = new FormData();
+            formData.append('nombre', nombreLista);
+            const response = await fetch('/libros/crear_libreria/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            });
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message || '¡Lista creada con éxito!');
+                modal.style.display = "none";
+                
+
+                
+
+                //Aqui hacer la recarga dinamica
+                
+
+
+
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Error al crear la lista.');
+            }
+        } else {
+            alert('El nombre de la lista no puede estar vacío');
+        }
+    
+}
+
 </script>

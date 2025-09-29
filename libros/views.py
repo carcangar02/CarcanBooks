@@ -320,7 +320,7 @@ def cambio_status(request):
             return JsonResponse({'message': 'Libro eliminado correctamente.'}, status=200)
         if status == 'true':
             libro_info = json.loads(request.POST.get('libro_info'))
-            libreria_create = Libreria.objects.get(id=2)
+            libreria_create = Libreria.objects.get(id=2)  # CUIDADOOOOOOOOOOOOOOOOO: ID HARDCODEADO
             extension_create = Extension.objects.get(nombre=libro_info.get('extension'))
             print(f"{libro_info.get('titulo')},      {libro_info.get('enlace')}       {libro_info.get('extension')} ")
             Libro.objects.create(
