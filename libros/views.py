@@ -169,10 +169,9 @@ def libro_details(request, libro_id=None, info_coded=None):
             titulo=libro_db.titulo
             enlace = libro_db.enlace
             foto = libro_db.foto
-            libreria = libro_db.libreria
             extension = libro_db.extension.nombre
 
-    
+
         num_caps_db = libro_db.num_capitulos
         num_caps_web=len(libro_scrapped['capitulos'])
 
@@ -187,7 +186,7 @@ def libro_details(request, libro_id=None, info_coded=None):
                         visto=False
                     )
                     nuevo_capitulo.save()
-        
+
 
                 else:
                     print(f"Capítulo sin enlace o título en libro {libro_db.titulo} (ID {libro_db.id}): {cap}")
