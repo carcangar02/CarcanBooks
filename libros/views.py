@@ -77,11 +77,25 @@ def signup_action(request):
 @login_required
 def librerias_menu(request):
     user_id = request.user.id
-    librerias = Libreria.objects.filter(usuario=user_id).values('pk', 'nombre')
+
+    librerias_qs = Libreria.objects.filter(usuario=user_id).prefetch_related('libros')
+
+    librerias = []
+    for libreria in librerias_qs:
+        librerias.append({
+            'pk': libreria.pk,
+            'nombre': libreria.nombre,
+            'libros_pk': [lib.pk for lib in libreria.libros.all()]  
+        })
+
+
     info_libros = []
     lista_libros = Libreria.objects.filter(usuario=user_id).values('libros')
+
     libros_qs = Libro.objects.filter(pk__in=lista_libros).distinct()
-    
+
+
+
 
     for libro in libros_qs:
         try:
@@ -99,7 +113,7 @@ def librerias_menu(request):
 
 
     context = {
-        'librerias': list(librerias),
+        'librerias': json.dumps(librerias),
         'info_libros': json.dumps(info_libros),
     }
     return render(request, 'libros/librerias_menu.html', context)

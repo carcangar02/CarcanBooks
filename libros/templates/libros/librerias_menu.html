@@ -14,10 +14,7 @@
 
             <div>
                 <select id="select_libreria">
-                    <option value="">Todas</option>
-                    {% for libreria in librerias %}
-                        <option value="{{ libreria.pk }}" {% if libreria.pk == 1 %}selected{% endif %}>{{ libreria.nombre }}</option>
-                    {% endfor %}
+                    <option value="">Todos</option>
                 </select> 
             </div>
 
@@ -50,39 +47,84 @@
 // Precarga desde Django del JSON de libros
 const libros = JSON.parse('{{ info_libros|escapejs }}');
 const container = document.getElementById("div_libros");
+const librerias = JSON.parse('{{ librerias|escapejs }}');
+const select = document.getElementById("select_libreria");
+function crear_selects(librerias=null){
+    
+    librerias.forEach(libreria => {
+
+        let option = document.createElement("option");
+        option.value = libreria.pk;
+        option.textContent = libreria.nombre;
+        select.appendChild(option);
+    });
+}
+crear_selects(librerias);
+
+
+
+
+
+
+
+
+
+
+
 
 // Función para renderizar libros ||||||||   TENGO QUE CAMBIAR ESTO DEBIDO A LA MODIFICACION DE LA LOGICA LIBRO/LIBRERIA
-function renderLibros(filtroLibreria = null) {    
+function renderLibros(filtroLibreria = null) {
     container.innerHTML = "";
-    let filtrados = libros;
+    let filtrados = "";
 
-    if (filtroLibreria) {
-        filtrados = libros.filter(libro => libro.libreria == filtroLibreria);
+    if (filtroLibreria == "") {
+        filtrados = libros;
+    }
+
+    const idLibreria = parseInt(filtroLibreria, 10);
+    if (idLibreria) {
+        libreriaSelect = librerias.find(libreria => libreria.pk == idLibreria);
+        filtrados = libros.filter(libro => libreriaSelect.libros_pk.includes(libro.id));
+
     }
 
     filtrados.forEach(libro => {
-        const div = document.createElement("div");
-        div.innerHTML = `
-            <p>${libro.titulo}</p>
-            <a href="/libros/libro/id/${libro.id}/">
-                <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
-            </a>
-        `;
-        container.appendChild(div);
-    });
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <p>${libro.titulo}</p>
+        <a href="/libros/libro/id/${libro.id}/">
+            <img src="${libro.foto}"  alt="${libro.titulo}" width="100" loading="lazy">
+        </a>
+    `;
+    container.appendChild(div);
+    
+    console.log(filtroLibreria);
+});
+
+
+
+
+
 }
 
-// Valor inicial (el valor seleccionado en el select)
-const initialLibreriaId = document.getElementById("select_libreria").value;
 
+// Valor inicial (el valor seleccionado en el select)
+inicialId = select.value;
 // Render inicial de libros con esa librería seleccionada
-renderLibros(initialLibreriaId);
+renderLibros(inicialId);
 
 // Evento al cambiar el select
-document.getElementById("select_libreria").addEventListener("change", (e) => {
+select.addEventListener("change", (e) => {
+
     const libreriaId = e.target.value;
-    renderLibros(libreriaId || null);
+    renderLibros(libreriaId);
 });
+
+
+
+
+
+
 
 
 
@@ -129,9 +171,8 @@ async function enviarFormulario(event) {
                 const data = await response.json();
                 alert(data.message || '¡Lista creada con éxito!');
                 modal.style.display = "none";
-                
 
-                
+
 
                 //Aqui hacer la recarga dinamica
                 

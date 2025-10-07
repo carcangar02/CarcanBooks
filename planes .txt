@@ -1,14 +1,12 @@
 ---------------------ULTIMO HECHO----------------------------
-Terminado el login y el signup, creado el modal de agregar librerias, 
-estoy haciendo la funcion de crear librerias, quedaria cambiar toda la 
-logica para que los libros no contengan informacion de a que libreria pertenecen,
-es decir que todo eso se gestione desde la libreria y mediante variables de session
-
+Borrar librerias
+carga dinamica librerias
+agregar y borrar libros a librerias
 
 
 El añadir libros a librerias, tengo la id de la libreria hardcodeada (view.py[323]), tendria que,
-en el libro details del libro a agregar, tener un despegable con las librerias del 
-usuario para que al darle a cambiar status, se abregue en la libreria seleccionada
+en el libro details del libro a agregar
+
 
 
 ATENTO 
@@ -16,7 +14,7 @@ librerias_menu(55,135)
 libro_details(97)
 
 
-Estoy en librerias_menu.html haciendo la peticion en la linea 135
+
 
 ---------------------ULTIMO HECHO----------------------------
 
