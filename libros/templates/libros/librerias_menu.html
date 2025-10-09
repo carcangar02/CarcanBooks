@@ -9,7 +9,8 @@
             <div>               
                     <a href="/libros/buscador" class="btn-navegacion">Buscador</a>
             </div>
-            <button id="abrirModalBtn" class="btn-navegacion">Crear Lista</button>
+            <button id="abrirModalBtn" class="btn-navegacion">Crear libreria</button>
+            <button id="borrar_Libreria" class="btn-navegacion">Borrar Libreria</button>
 
 
             <div>
@@ -49,6 +50,7 @@ const libros = JSON.parse('{{ info_libros|escapejs }}');
 const container = document.getElementById("div_libros");
 const librerias = JSON.parse('{{ librerias|escapejs }}');
 const select = document.getElementById("select_libreria");
+
 function crear_selects(librerias=null){
     
     librerias.forEach(libreria => {
@@ -59,6 +61,8 @@ function crear_selects(librerias=null){
         select.appendChild(option);
     });
 }
+
+
 crear_selects(librerias);
 
 
@@ -72,7 +76,7 @@ crear_selects(librerias);
 
 
 
-// Función para renderizar libros ||||||||   TENGO QUE CAMBIAR ESTO DEBIDO A LA MODIFICACION DE LA LOGICA LIBRO/LIBRERIA
+// Función para renderizar libros 
 function renderLibros(filtroLibreria = null) {
     container.innerHTML = "";
     let filtrados = "";
@@ -85,7 +89,10 @@ function renderLibros(filtroLibreria = null) {
     if (idLibreria) {
         libreriaSelect = librerias.find(libreria => libreria.pk == idLibreria);
         filtrados = libros.filter(libro => libreriaSelect.libros_pk.includes(libro.id));
-
+        if (filtrados.length === 0) {
+        container.innerHTML = "<p>No hay libros en esta librería.</p>";
+        return;
+    }
     }
 
     filtrados.forEach(libro => {
@@ -98,11 +105,8 @@ function renderLibros(filtroLibreria = null) {
     `;
     container.appendChild(div);
     
-    console.log(filtroLibreria);
+
 });
-
-
-
 
 
 }
@@ -174,7 +178,8 @@ async function enviarFormulario(event) {
 
 
 
-                //Aqui hacer la recarga dinamica
+                cargaLibrerias()
+
                 
 
 
@@ -192,4 +197,52 @@ async function enviarFormulario(event) {
 
 
 
+document.getElementById("borrar_Libreria").addEventListener("click", borrarLibreria);
+
+
+
+
+async function borrarLibreria(event) {
+    event.preventDefault();
+    const libreriaId = select.value;
+    if (libreriaId) {
+        const formData = new FormData();
+        formData.append('libreria_id', libreriaId);
+        const response = await fetch('/libros/borrar_libreria/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+        if (response.ok) {
+            cargaLibrerias()
+            const data = await response.json();
+            alert(data.message || '¡Libreria borrada con éxito!');
+        } else {
+            const errorData = await response.json();
+            alert(errorData.error || 'Error al borrar la libreria.');
+        }
+    }
+}
+
+
+
+
+
+async function cargaLibrerias(){
+    const response = await fetch('/libros/carga_dinamica_librerias/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    });
+    if (response.ok) {  
+        const data = await response.json();
+        Librerias = data.librerias;
+        select.innerHTML = '<option value="">Todos</option>';
+        crear_selects(Librerias);
+
+    }
+} 
 </script>

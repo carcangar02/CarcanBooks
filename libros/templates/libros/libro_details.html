@@ -18,15 +18,32 @@
                     <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
                 </div>
                 
-                <input type="checkbox" id="switch" {%if libro.id%}checked{%endif%}/>
-                <label for="switch">Toggle</label>
+                
+                <button id="abrirModalBtn" class="btn-navegacion">Elegir Libreria</button>
+                {% if libro.id %}<button id="descargar_button">Descargar</button>{% endif %}
 
-                <button id="descargar_button">Descargar</button>
-                <select id="select_libreria" >
-                        {% for libreria in librerias %}
-                            <option value="{{ libreria.pk }}" {% if libreria.pk == libro.libreria.pk %}selected{% endif %}>{{ libreria.nombre }}</option>
-                        {% endfor %}
-                    </select>
+
+
+
+                <div id="miModal" class="modal">
+                    <div class="modal-contenido" id ="modal-contenido-details">
+                        <span class="cerrar">&times;</span>
+
+
+                        <div>Selecciona un libreria:</div>
+                        <ul style="list-style: none; padding-left: 0;" id="radio_libreria">
+                            <li>
+                                <div>
+                                    <input type="radio" name="elemento" value="delete" class="radio_element" >
+                                    Eliminar
+                                </div>
+                            </li>
+                        </ul>
+
+                        <button type="submit" id="guardarListaBtn" class="btn-navegacion">Guardar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
 
@@ -42,119 +59,78 @@
 
 <script>
 const capitulos = JSON.parse('{{ capitulos|escapejs }}');
-capitulos.forEach((capitulo) => {
-    const li = document.createElement('li');
-    if (capitulo.visto==true) {
-        li.classList.add('visto')
-    } else {
-        li.classList.add('no_visto')
-    }
-    li.innerHTML = `<a href="/libros/lector/${capitulo.id}/">${capitulo.titulo}</a>`;
-    document.getElementById('lista_capitulos').appendChild(li);
-});
+const librerias = JSON.parse('{{ librerias|escapejs }}');
+const radio = document.getElementById("radio_libreria");
+let libro_id = {{libro.id|default:"null"}};
+const pertenencia = librerias.find(libreria => libreria.libros_pk.includes(libro_id));
+
+let libro_web = false
+if (libro_id == null){
+        libro_web = true
+        fetch('/libros/lastLibro/')
+        .then(response => response.json())
+        .then(data => {
+            libro_id = data.last_libro_id;
+        });
+}
 
 
 
 
-const selectLibreria = document.getElementById("select_libreria");
 
-if (selectLibreria) {
-    selectLibreria.addEventListener("change", (e) => {
-        const libreriaId = e.target.value;
-        const formData = new FormData();
-        formData.append('nueva_libreria_id', libreriaId);
-        formData.append('libro_id', {{libro.id}}); // OJO: None no existe en JS, será null o el valor que necesites
-        cambiarLibreria(formData);
+
+
+function crear_radios(librerias=null){
+    if (!librerias) return;
+    librerias.forEach(libreria => {
+
+        let lista_element = document.createElement("li");
+        if (pertenencia && pertenencia.pk === libreria.pk) {
+            lista_element.innerHTML = `
+            <div>
+                <input type="radio" name="elemento" value="${libreria.pk}" class="radio_element" checked>
+                ${libreria.nombre}
+            </div>
+        `;
+        }
+        else{
+            lista_element.innerHTML = `
+                <div>
+                    <input type="radio" name="elemento" value="${libreria.pk}" class="radio_element" >
+                    ${libreria.nombre}
+                </div>
+            `;
+        }
+        radio.appendChild(lista_element);
     });
 }
+
+
+
+
 
 
 function cambiarLibreria(formData) {
 
 
-fetch('/libros/cambiar_libreria/', {
-    method: 'POST',
-    headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-    },
-    body: formData
-})
-.then(response => response.json())
-.then(data => console.log("Libreria Cambiada:", data));
+    fetch('/libros/cambiar_libreria/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+    alert("Librería cambiada correctamente");
+    document.getElementById("miModal").style.display = "none";
+    })
 }
 
 
 
 
 
-
-
-
-document.getElementById("switch").addEventListener("change", (e) => {
-    const formData = new FormData();
-    const libro_info = {
-        'titulo': '{{ libro.titulo}}',
-        'enlace': '{{ libro.enlace }}',
-        'foto': '{{ libro.foto }}',
-        'libreria': 2, //CUIDADOOOO  
-        'extension': '{{ libro.extension }}',
-    }
-    formData.append('libro_id', '{{libro.id}}');
-
-
-
-    if (e.target.checked) {
-        formData.append('status', true);
-        formData.append('libro_info', JSON.stringify(libro_info));
-        
-
-        fetch('/libros/cambio_status/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => console.log("Libro Agregado:", data));
-
-
-    } 
-    
-
-
-
-    
-    else {
-        formData.append('status', false);
-
-        fetch('/libros/cambio_status/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => console.log("Libro Eliminado:", data));
-        }
-});
-
-
-
-
-
-
-
-const descargarButton = document.getElementById("descargar_button");
-
-if (descargarButton) {
-    descargarButton.addEventListener("click", (e) => {
-        const formData = new FormData();
-        formData.append('libro_id', {{libro.id}});
-        descargarLibro(formData);
-    });
-}
 
 
 function descargarLibro(formData) {
@@ -178,4 +154,193 @@ fetch('/libros/descarga_to_ebook/', {
 })
 .catch(error => console.error(error.message));
 }
+
+
+
+async function crear_libro(libro_info) {
+    const formData = new FormData();
+    formData.append('titulo', libro_info.titulo);
+    formData.append('enlace', libro_info.enlace);
+    formData.append('foto', libro_info.foto);
+    formData.append('extension', libro_info.extension);
+
+    try {
+        const response = await fetch('/libros/crear_libro/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la solicitud');
+        }
+
+        const data = await response.json();
+        console.log("Libro Creado:", data);
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+
+
+
+crear_radios(librerias);
+
+function marcarEliminarSi() {
+    const radioEliminar = document.querySelector('input[name="elemento"][value="delete"]');
+    radioEliminar.checked = true;
+}
+
+if(libro_web == true){
+marcarEliminarSi()
+}
+
+
+
+
+let selectedRadio = document.querySelector('input[name="elemento"]:checked');
+const libreria_id = selectedRadio.value
+
+
+capitulos.forEach((capitulo) => {
+    const li = document.createElement('li');
+    if (capitulo.visto==true) {
+        li.classList.add('visto')
+    } else {
+        li.classList.add('no_visto')
+    }
+    li.innerHTML = `<a href="/libros/lector/${capitulo.id}/">${capitulo.titulo}</a>`;
+    document.getElementById('lista_capitulos').appendChild(li);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const selectedRadioNuevo = document.querySelector('input[name="elemento"]:checked');
+    
+    if (!selectedRadio) {
+        alert("Por favor, selecciona una libreria o eliminar.");
+        return;
+    }
+
+
+
+
+
+    const nueva_libreria_id = selectedRadioNuevo.value;
+    const formData = new FormData();
+    formData.append('libreria_id', libreria_id);
+    formData.append('nueva_libreria_id', nueva_libreria_id);
+    formData.append('libro_id', libro_id); 
+
+
+    if (selectedRadioNuevo.value === "delete") {
+        if (!confirm("¿Estás seguro de que deseas eliminar este libro de la libreria?")) {
+            formData.append('delete', true);
+
+            cambiarLibreria(formData);
+            return; 
+        }   
+    }
+
+
+    if (libro_web == true) {
+  
+        const libro_info = {
+            'titulo': '{{ libro.titulo}}',
+            'enlace': '{{ libro.enlace }}',
+            'foto': '{{ libro.foto }}',
+            'extension': '{{ libro.extension }}',
+        } 
+        await crear_libro(libro_info); 
+
+        cambiarLibreria(formData);
+    }
+
+
+
+
+    if (libro_web == false && libreria_id !== 'delete') {
+        cambiarLibreria(formData);
+        return;
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const descargarButton = document.getElementById("descargar_button");
+
+if (descargarButton) {
+    descargarButton.addEventListener("click", (e) => {
+        const formData = new FormData();
+        formData.append('libro_id', {{libro.id}});
+        descargarLibro(formData);
+    });
+}
+
+
+
+
+
+
+
+
+var modal = document.getElementById("miModal");
+var btn = document.getElementById("abrirModalBtn");
+var span = document.getElementsByClassName("cerrar")[0];
+
+
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+
+
+
+
+
 </script>

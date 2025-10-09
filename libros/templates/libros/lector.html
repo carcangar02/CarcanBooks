@@ -7,25 +7,28 @@
     <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
 </head>
 <body>
-    {%if anterior %}
-    <a class="btn-navegacion" href="/libros/lector/{{anterior}}">Anterior</a>
-    {%endif%}
-    <a class="btn-navegacion" href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
-    {%if siguiente %}
-    <a class="btn-navegacion" href="/libros/lector/{{siguiente}}">Siguiente</a>
-    {%endif%}
-
+    <div class="nav-lector">
+        {%if anterior %}
+        <a class="btn-navegacion" href="/libros/lector/{{anterior}}">Anterior</a>
+        {%endif%}
+        <a class="btn-navegacion" href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
+        {%if siguiente %}
+        <a class="btn-navegacion" href="/libros/lector/{{siguiente}}">Siguiente</a>
+        {%endif%}
+    </div>
     
-    <div>
-        {{contenido|safe}}
+    <div class="capitulo-contenido">
+        {{ contenido|safe }}
     </div>
 
+    <div class="nav-lector">
 
-    {%if anterior %}
-    <a class="btn-navegacion" href="/libros/lector/{{anterior}}">Anterior</a>
-    {%endif%}
-    <a class="btn-navegacion" href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
-    {%if siguiente %}
-    <a class="btn-navegacion" href="/libros/lector/{{siguiente}}">Siguiente</a>
-    {%endif%}
+        {%if anterior %}
+        <a class="btn-navegacion" href="/libros/lector/{{anterior}}">Anterior</a>
+        {%endif%}
+        <a class="btn-navegacion" href="/libros/libro/id/{{capitulo.libro.pk}}">   VOLVER   </a>
+        {%if siguiente %}
+        <a class="btn-navegacion" href="/libros/lector/{{siguiente}}">Siguiente</a>
+        {%endif%}
+    </div>
 </html>

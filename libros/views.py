@@ -124,11 +124,46 @@ def librerias_menu(request):
 
 
 
+@login_required
+
+def crear_libreria(request):
+    try:
+        nombre_libreria = request.POST.get('nombreLista')
+        usuario = request.user
+        nueva_libreria = Libreria.objects.create(nombre=nombre_libreria, usuario=usuario)
+        return JsonResponse({'message': 'Librería creada correctamente.', 'libreria_id': nueva_libreria.id}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+
+    
+@login_required
+
+def borrar_libreria(request):
+    try:
+        libreria_id = request.POST.get('libreria_id')
+        print(libreria_id)
+        libreria = Libreria.objects.get(pk=libreria_id)
+        libreria.delete()
+        return JsonResponse({'message': 'Librería eliminada correctamente.'}, status=200)
+    except Libreria.DoesNotExist:
+        return JsonResponse({'error': 'Librería no encontrada jjjj.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
 
 
 @login_required
 
 def libro_details(request, libro_id=None, info_coded=None):
+    user_id = request.user.id
+
     if libro_id is None and info_coded is not None:
         
         decoded_bytes = base64.b64decode(info_coded)
@@ -214,7 +249,15 @@ def libro_details(request, libro_id=None, info_coded=None):
 
 
 
-    librerias  = Libreria.objects.filter(usuario=request.user).values('pk', 'nombre')
+    librerias_qs = Libreria.objects.filter(usuario=user_id).prefetch_related('libros')
+
+    librerias = []
+    for libreria in librerias_qs:
+        librerias.append({
+            'pk': libreria.pk,
+            'nombre': libreria.nombre,
+            'libros_pk': [lib.pk for lib in libreria.libros.all()]  
+        })
 
     info_libro = {
         'id': libro_id,
@@ -225,7 +268,7 @@ def libro_details(request, libro_id=None, info_coded=None):
     }
 
     context = {
-        'librerias': list(librerias),
+        'librerias': json.dumps(librerias),
         'libro': info_libro,
         'capitulos': json.dumps(list(capitulos)),
     }
@@ -321,43 +364,6 @@ def busqueda(request):
 
 
 
-@login_required
-
-def cambio_status(request):
-
-
-    # tengo que eliminar el libro solo de la libreria del usuario
-    try:
-        status=request.POST.get('status')
-        libro_id = request.POST.get('libro_id')
-
-        if status == 'false':
-            libro = Libro.objects.get(pk=libro_id)
-            libro.delete()
-            return JsonResponse({'message': 'Libro eliminado correctamente.'}, status=200)
-        if status == 'true':
-            libro_info = json.loads(request.POST.get('libro_info'))
-            libreria_create = Libreria.objects.get(id=2)  # CUIDADOOOOOOOOOOOOOOOOO: ID HARDCODEADO
-            extension_create = Extension.objects.get(nombre=libro_info.get('extension'))
-            print(f"{libro_info.get('titulo')},      {libro_info.get('enlace')}       {libro_info.get('extension')} ")
-            Libro.objects.create(
-                titulo=libro_info.get('titulo'),
-                enlace=libro_info.get('enlace'),
-                foto=libro_info.get('foto'),
-                libreria=libreria_create,
-                extension=extension_create
-            )
-            return JsonResponse({'message': 'Libro guardado correctamente.'}, status=200)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-
-
-
-
-
 
 
 
@@ -366,13 +372,33 @@ def cambio_status(request):
 def cambiar_libreria(request):
     try:
         libro_id = request.POST.get('libro_id')
+        libreria_id_POST = request.POST.get('libreria_id')
         nueva_libreria_id = request.POST.get('nueva_libreria_id')
-        print(libro_id, nueva_libreria_id)
+        delete = request.POST.get('delete') == 'true'
+
+
+        if delete:
+            libreria=Libreria.objects.get(id=nueva_libreria_id)
+            libro=Libreria.libros.get(id=libro_id)
+            libreria.libros.remove(libro)
+            libreria.save()
+
+
+        
+
+
         libro = Libro.objects.get(pk=libro_id)
+        if libreria_id_POST != 'delete':
+            libreria = Libreria.objects.get(id=libreria_id_POST)
+            libreria.libros.remove(libro)
+
+
+
+
         nueva_libreria = Libreria.objects.get(pk=nueva_libreria_id)
 
-        libro.libreria = nueva_libreria
-        libro.save()
+        nueva_libreria.libros.add(libro)
+        nueva_libreria.save()
 
         return JsonResponse({'message': 'Librería cambiada correctamente.'}, status=200)
     except Libro.DoesNotExist:
@@ -382,20 +408,45 @@ def cambiar_libreria(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)   
 
-
-
-@login_required
-
-def crear_libreria(request):
+def crear_libro(request):
     try:
-        nombre_libreria = request.POST.get('nombreLista')
-        usuario = request.user
-        nueva_libreria = Libreria.objects.create(nombre=nombre_libreria, usuario=usuario)
-        return JsonResponse({'message': 'Librería creada correctamente.', 'libreria_id': nueva_libreria.id}, status=200)
+        titulo = request.POST.get('titulo')
+        enlace = request.POST.get('enlace')
+        foto = request.POST.get('foto')
+        extension_POST = request.POST.get('extension')
+        extension = Extension.objects.get(nombre = extension_POST)
+
+        Libro.objects.create(
+            titulo=titulo,
+            enlace=enlace,
+            foto=foto,
+            extension=extension,
+        )
+
+
+        return JsonResponse({'message': 'Libro creado correctamente.'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
 
+
+def carga_dinamica_librerias(request):
+    user_id = request.user.id
+
+    librerias_qs = Libreria.objects.filter(usuario=user_id).prefetch_related('libros')
+
+    librerias = []
+    for libreria in librerias_qs:
+        librerias.append({
+            'pk': libreria.pk,
+            'nombre': libreria.nombre,
+            'libros_pk': [lib.pk for lib in libreria.libros.all()]  
+        })
+
+    context = {
+            'librerias': librerias,
+        }
+    return JsonResponse(context, safe=False, status=200)
 
 
 @login_required
@@ -432,6 +483,13 @@ def descarga_to_ebook(request) :
         return JsonResponse({'error': str(e)}, status=500)
 
 
+def lastLibro(request):
+    try:
+        last_libro = Libro.objects.latest('id')
+        next_id = last_libro.id +1
+        return JsonResponse({'last_libro_id': next_id}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 

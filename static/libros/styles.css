@@ -299,6 +299,15 @@ a:hover {
     border-radius: 10px;
 
 }
+#modal-contenido-details {
+    background-color: #1f1f1f;
+    margin: 5% auto; /* Centrado vertical y horizontal */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%; /* Ancho del modal */
+    border-radius: 10px;
+
+}
 
 /* El botón para cerrar */
 .cerrar {
@@ -376,4 +385,107 @@ label:active:after {
 
 
 
+/* Ocultamos el radio original */
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000; /* borde negro */
+    border-radius: 50%;     /* círculo */
+    margin-right: 10px;
+    vertical-align: middle;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    background-color: #fff; /* fondo blanco */
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Cuando está seleccionado */
+input[type="radio"]:checked {
+    background-color: #007bff; /* azul */
+    border-color: #007bff;
+}
+
+/* -----------------LECTOR-------------------- */
+/* Contenedor principal del texto */
+.capitulo-contenido {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px 50px;
+    background-color: #1e1e1e; /* fondo del contenedor */
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    line-height: 1.8;
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 1.1rem;
+    color: #e4e4e4; /* texto claro */
+}
+
+/* Fondo externo del área de lectura */
+.contenedor-fondo {
+    background-color: #2a2a2a; /* gris oscuro */
+    padding: 40px 0;
+}
+
+/* Títulos */
+.capitulo-contenido h1,
+.capitulo-contenido h2,
+.capitulo-contenido h3 {
+    text-align: center;
+    font-family: "Merriweather", "Georgia", serif;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    color: #f5f5f5;
+}
+
+/* Párrafos */
+.capitulo-contenido p {
+    text-align: justify;
+    margin-bottom: 1.2em;
+}
+
+/* Citas o diálogos */
+.capitulo-contenido blockquote {
+    border-left: 4px solid #5b5b5b;
+    padding-left: 16px;
+    color: #c7c7c7;
+    font-style: italic;
+    margin: 1.5em 0;
+}
+
+/* Imágenes */
+.capitulo-contenido img {
+    display: block;
+    margin: 20px auto;
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255,255,255,0.05);
+}
+
+/* Separadores */
+.capitulo-contenido hr {
+    border: none;
+    border-top: 1px solid #444;
+    margin: 2em 0;
+}
+
+
+
+
+
+/* Selección de texto */
+::selection {
+    background-color: #6b8cff;
+    color: #fff;
+}
+.nav-lector {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px 0;
+}
+/* -----------------LECTOR-------------------- */
 

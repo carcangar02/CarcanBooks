@@ -1,21 +1,5 @@
 ---------------------ULTIMO HECHO----------------------------
-Borrar librerias
-carga dinamica librerias
-agregar y borrar libros a librerias
-
-
-El añadir libros a librerias, tengo la id de la libreria hardcodeada (view.py[323]), tendria que,
-en el libro details del libro a agregar
-
-
-
-ATENTO 
-librerias_menu(55,135)
-libro_details(97)
-
-
-
-
+Usuario implementados, todo funciona correctamente aparentenemente xd
 ---------------------ULTIMO HECHO----------------------------
 
 
