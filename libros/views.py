@@ -371,34 +371,26 @@ def busqueda(request):
 
 def cambiar_libreria(request):
     try:
-        libro_id = request.POST.get('libro_id')
-        libreria_id_POST = request.POST.get('libreria_id')
-        nueva_libreria_id = request.POST.get('nueva_libreria_id')
+        libro_id = request.POST.get('libro_id') #3
+        libreria_id_old = request.POST.get('libreria_id')  #18
+        nueva_libreria_id = request.POST.get('nueva_libreria_id') #delete
         delete = request.POST.get('delete') == 'true'
+
+        libro=Libro.objects.get(id=libro_id)
 
 
         if delete:
-            libreria=Libreria.objects.get(id=nueva_libreria_id)
-            libro=Libreria.libros.get(id=libro_id)
+            libreria=Libreria.objects.get(id=libreria_id_old)
             libreria.libros.remove(libro)
             libreria.save()
-
-
-        
-
-
-        libro = Libro.objects.get(pk=libro_id)
-        if libreria_id_POST != 'delete':
-            libreria = Libreria.objects.get(id=libreria_id_POST)
+        else:
+            libreria = Libreria.objects.get(id=libreria_id_old)
             libreria.libros.remove(libro)
 
+            nueva_libreria = Libreria.objects.get(pk=nueva_libreria_id)
 
-
-
-        nueva_libreria = Libreria.objects.get(pk=nueva_libreria_id)
-
-        nueva_libreria.libros.add(libro)
-        nueva_libreria.save()
+            nueva_libreria.libros.add(libro)
+            nueva_libreria.save()
 
         return JsonResponse({'message': 'Librería cambiada correctamente.'}, status=200)
     except Libro.DoesNotExist:

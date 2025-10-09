@@ -34,6 +34,8 @@ TuMangaOnline
 
 --------------------------TAREAS-------------------------------
 
+Añadir visto/no visto 
+ultimo leido
 
 
 Añadir anime
@@ -42,7 +44,6 @@ Añadir Manga
 
 
 
-Poder organizar los libros (ultimo leido, nombre, num capitulos etc)
 
 
 

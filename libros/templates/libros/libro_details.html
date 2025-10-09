@@ -66,13 +66,14 @@ const pertenencia = librerias.find(libreria => libreria.libros_pk.includes(libro
 
 let libro_web = false
 if (libro_id == null){
-        libro_web = true
-        fetch('/libros/lastLibro/')
-        .then(response => response.json())
-        .then(data => {
-            libro_id = data.last_libro_id;
-        });
+    libro_web = true
+    fetch('/libros/lastLibro/')
+    .then(response => response.json())
+    .then(data => {
+        libro_id = data.last_libro_id;
+    });
 }
+
 
 
 
@@ -111,8 +112,7 @@ function crear_radios(librerias=null){
 
 
 function cambiarLibreria(formData) {
-
-
+    console.log('hola');
     fetch('/libros/cambiar_libreria/', {
         method: 'POST',
         headers: {
@@ -176,10 +176,11 @@ async function crear_libro(libro_info) {
         if (!response.ok) {
             throw new Error('Error en la solicitud');
         }
+        else{
+        document.getElementById("miModal").style.display = "none";
+        alert("Libro creado correctamente");
+        }
 
-        const data = await response.json();
-        console.log("Libro Creado:", data);
-        return data;
     } catch (error) {
         console.error('Error:', error);
     }
@@ -193,9 +194,10 @@ crear_radios(librerias);
 function marcarEliminarSi() {
     const radioEliminar = document.querySelector('input[name="elemento"][value="delete"]');
     radioEliminar.checked = true;
+
 }
 
-if(libro_web == true){
+if(!pertenencia) {
 marcarEliminarSi()
 }
 
@@ -204,7 +206,6 @@ marcarEliminarSi()
 
 let selectedRadio = document.querySelector('input[name="elemento"]:checked');
 const libreria_id = selectedRadio.value
-
 
 capitulos.forEach((capitulo) => {
     const li = document.createElement('li');
@@ -232,7 +233,6 @@ capitulos.forEach((capitulo) => {
 const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListener("click", async (e) => {
     e.preventDefault();
     const selectedRadioNuevo = document.querySelector('input[name="elemento"]:checked');
-    
     if (!selectedRadio) {
         alert("Por favor, selecciona una libreria o eliminar.");
         return;
@@ -244,18 +244,21 @@ const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListe
 
     const nueva_libreria_id = selectedRadioNuevo.value;
     const formData = new FormData();
+    if(pertenencia){
     formData.append('libreria_id', libreria_id);
+    }
     formData.append('nueva_libreria_id', nueva_libreria_id);
     formData.append('libro_id', libro_id); 
 
 
     if (selectedRadioNuevo.value === "delete") {
-        if (!confirm("¿Estás seguro de que deseas eliminar este libro de la libreria?")) {
-            formData.append('delete', true);
+ 
+            document.getElementById("miModal").style.display = "none";
 
+            formData.append('delete', true);
             cambiarLibreria(formData);
             return; 
-        }   
+    
     }
 
 
@@ -275,7 +278,8 @@ const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListe
 
 
 
-    if (libro_web == false && libreria_id !== 'delete') {
+ 
+    if (libro_web == false && nueva_libreria_id !== 'delete') {
         cambiarLibreria(formData);
         return;
     }
