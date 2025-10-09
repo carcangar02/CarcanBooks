@@ -1,5 +1,7 @@
 ---------------------ULTIMO HECHO----------------------------
-Usuario implementados, todo funciona correctamente aparentenemente xd
+
+
+
 ---------------------ULTIMO HECHO----------------------------
 
 
@@ -32,19 +34,16 @@ TuMangaOnline
 
 --------------------------TAREAS-------------------------------
 
-Añadir usuarios y login --LOGIN
+
 
 Añadir anime
 Añadir Manga
 
 
 
-Poder crear librerias
 
 Poder organizar los libros (ultimo leido, nombre, num capitulos etc)
 
-que al añadir libros, no se creen nuevas instancias,
-es decir, si el libro ya existe en la bbdd, reutilizar esa informacion 
 
 
 --------------------------TAREAS-------------------------------
