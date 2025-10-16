@@ -28,7 +28,8 @@ def login_view(request):
     else:
         return render(request, "libros/login_view.html")
 
-
+#esta funcion sirve para hacer login recoge la informacino del formulario de la vista ,
+#  y compara con la base de datos, si ya tienes una cookie te hace el login automaticamente y te redirecciona
 
 def login_action(request):
     username = request.POST.get('username')
@@ -384,8 +385,9 @@ def cambiar_libreria(request):
             libreria.libros.remove(libro)
             libreria.save()
         else:
-            libreria = Libreria.objects.get(id=libreria_id_old)
-            libreria.libros.remove(libro)
+            if libreria_id_old:
+                libreria = Libreria.objects.get(id=libreria_id_old)
+                libreria.libros.remove(libro)
 
             nueva_libreria = Libreria.objects.get(pk=nueva_libreria_id)
 

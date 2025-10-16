@@ -56,7 +56,7 @@ def scrap_libro_details(enlace):
         titulo_web = main.find('h1', class_='novel-title text2row').text
         num_caps = main.select_one('div.header-stats span strong').text
         num_bucles = math.ceil(int(num_caps) / 100)
-        titulo_enlace = titulo_web.strip().replace("-", "").replace(" ", "-").lower().replace(":","").replace(",","").replace(".","").replace("!","").replace("'", "")
+        titulo_enlace = titulo_web.strip().replace(" ", "-").lower().replace(":","").replace(",","").replace(".","").replace("!","").replace("'", "")
     capitulos_array = []
     
     for i in range(num_bucles):
