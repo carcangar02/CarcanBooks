@@ -4,6 +4,7 @@ from .models import Libreria, Libro, Capitulos, Extension
 import importlib
 import json
 import base64
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout 
@@ -454,10 +455,76 @@ def descarga_to_ebook(request) :
         toEbbok = importlib.import_module('libros.services.toEbook')
         html_caps = []
 
+        capitulos_list = list(capitulos)
+        total_caps = len(capitulos_list)
+        print(f"Iniciando descarga de {total_caps} capítulos para libro '{libro.titulo}' (ID {libro_id})")
 
-        for cap in capitulos:
-            contenido = extension_scrap.scrap_capitulo(cap['enlace'])
-            html_caps.append(contenido)
+        if total_caps == 0:
+            print("No hay capítulos para descargar.")
+        else:
+            # configuraciones de concurrencia y reintentos
+            max_workers = min(5, total_caps)  # reducir concurrencia para evitar bloqueos/rate limits
+            max_retries = 3
+            retry_backoff_base = 2  # segundos
+
+            print(f"Usando hasta {max_workers} hilos para descargar capítulos en paralelo (reintentos={max_retries}).")
+
+            resultados = [None] * total_caps
+            completed = 0
+            failed_count = 0
+
+            def fetch_with_retries(enlace, idx_local):
+                # realiza varios intentos con backoff exponencial
+                for attempt in range(1, max_retries + 1):
+                    try:
+                        print(f"[Cap {idx_local}] Intento {attempt} - descargando {enlace}")
+                        contenido_local = extension_scrap.scrap_capitulo(enlace)
+                        # si el contenido está vacío, tratarlo como fallo y reintentar
+                        if contenido_local:
+                            return contenido_local
+                        else:
+                            print(f"[Cap {idx_local}] Contenido vacío en intento {attempt}.")
+                    except Exception as e:
+                        print(f"[Cap {idx_local}] Error en intento {attempt}: {e}")
+                    # backoff antes del siguiente intento
+                    sleep_for = retry_backoff_base ** attempt
+                    time.sleep(sleep_for + 0.5)
+                # si todos los reintentos fallan, devolver cadena vacía
+                return ""
+
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_idx = {}
+                for idx, cap in enumerate(capitulos_list, start=1):
+                    enlace = cap.get('enlace')
+                    future = executor.submit(fetch_with_retries, enlace, idx)
+                    future_to_idx[future] = idx
+                    # pequeño retardo al encolar para evitar ráfagas
+                    time.sleep(0.1)
+
+                for future in as_completed(future_to_idx):
+                    idx = future_to_idx[future]
+                    try:
+                        contenido = future.result()
+                    except Exception as e:
+                        print(f"Error inesperado en futuro del capítulo {idx}: {e}")
+                        contenido = ""
+                    if not contenido:
+                        failed_count += 1
+                    resultados[idx - 1] = contenido
+                    completed += 1
+                    percent = int((completed / total_caps) * 100)
+                    print(f"Progreso descarga: {completed}/{total_caps} capítulos ({percent}%)")
+
+            # Si demasiados fallos, intentar de nuevo secuencialmente para mayor estabilidad
+            if failed_count > 0 and failed_count / total_caps > 0.2:
+                print(f"Detectados {failed_count} fallos; intentando descarga secuencial para capítulos fallidos.")
+                for idx, contenido in enumerate(resultados, start=1):
+                    if not contenido:
+                        enlace = capitulos_list[idx - 1].get('enlace')
+                        contenido_seq = fetch_with_retries(enlace, idx)
+                        resultados[idx - 1] = contenido_seq
+
+            html_caps = resultados
 
     
 
