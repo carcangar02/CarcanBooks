@@ -47,47 +47,50 @@ def scrap_libro_details(enlace):
     scraper = cloudscraper.create_scraper()
     response = scraper.get(enlace)
 
-
+    slug_libro = enlace.split("/")[-1]
+    print(slug_libro)
     # Comprobar que la petición fue exitosa
     if response.status_code == 200:
         # Parsear el HTML con BeautifulSoup
         main = BeautifulSoup(response.text, 'html.parser')
+        report_interno = main.find('a', id='novel-report')
+        libro_id_interno = report_interno.get('report-post_id')
         imagen = main.select_one('figure.cover img')
         titulo_web = main.find('h1', class_='novel-title text2row').text
-        num_caps = main.select_one('div.header-stats span strong').text
-        num_bucles = math.ceil(int(num_caps) / 100)
-        titulo_enlace = titulo_web.strip().replace(" ", "-").lower().replace(":","").replace(",","").replace(".","").replace("!","").replace("'", "")
-    capitulos_array = []
-    
-    for i in range(num_bucles):
-        
-        paginas = i +1
 
-        enlace_capitulos = f"https://novelfire.net/book/{titulo_enlace}/chapters?page={paginas}"
+
+
+        enlace_capitulos_base = f'https://novelfire.net/listChapterDataAjax?post_id={libro_id_interno}&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=created_at&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=n_sort&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=false&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=2&order%5B0%5D%5Bdir%5D=asc&start=0&length=-1&search%5Bvalue%5D=&search%5Bregex%5D=false&_=1765977081754'
         scraper_capitulos = cloudscraper.create_scraper()
-        response_capitulos = scraper_capitulos.get(enlace_capitulos)
+        response = scraper_capitulos.get(enlace_capitulos_base)
 
-        if response_capitulos.status_code == 200:
-            main = BeautifulSoup(response_capitulos.text, 'html.parser')
+        # Comprobar que la petición fue exitosa
+        if response.status_code == 200:
+            # Parsear el HTML con BeautifulSoup
+            json_response = json.loads(response.text)
             
-            capitulos_ul = main.find('ul', class_='chapter-list')
-            capitulos_lista = capitulos_ul.find_all('li')
-            
-            
-            for cap in capitulos_lista:
-                cap_info = cap.find('a')
-                capitulos_array.append({
-                    'title': cap_info['title'],
-                    'href': cap_info['href']
-                })
-                
-                
+        capitulos_array = []
+        
+        resultado = html.unescape(json_response['data'])
+
+        for row in resultado:
+                slug_capitulo_enlace = row["slug"]
+                slug_corte = re.search(r'chapter-\d+', slug_capitulo_enlace)
+                if slug_corte:
+                    n_capitulo_enlace = slug_corte.group(0)
+                    
+                    capitulos_array.append({
+                        'title': row["title"],
+                        'href': f'https://novelfire.net/book/{slug_libro}/{n_capitulo_enlace}' #------------------------------------------- PROBLEMA , ME FALTA EL SLUG DEL LIBRO
+                    })
+
 
     info_libro = {
         'titulo': titulo_web,
-        'foto': imagen['data-src'],
+        'foto': imagen['src'],
         'capitulos': capitulos_array
     }
+
     return info_libro ## OUT    info_libro{titulo, foto, capitulos[{title, href}] }
 
 
@@ -105,22 +108,20 @@ def scrap_busqueda(input):
     if response.status_code == 200:
         # Parsear el HTML con BeautifulSoup
         json_response = json.loads(response.text)
+        
+        
+        resultado = html.unescape(json_response['data'])
 
-        html_interno = html.unescape(json_response['html'])
-
-    # Parseamos ese HTML con BeautifulSoup
-        soup = BeautifulSoup(html_interno, 'html.parser')
 
 
         libros_resultado = []
-        for row in soup.select('li.novel-item'):
-            enlace = row.find('a')['href']
-            imagen = row.find('img')['src']
-            titulo = row.find('h4', class_='novel-title').text.strip()
+        for row in resultado:
+            enlace = f'https://novelfire.net/book/{row["slug"]}'
+            titulo = row['title']
             libros_resultado.append({
                 'titulo': titulo,
                 'enlace': enlace,
-                'foto': imagen,
+                'foto': f'https://novelfire.net/{row["image"]}',
                 'libreria': 2,
                 'extension': extension.pk
 

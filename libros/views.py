@@ -377,9 +377,10 @@ def cambiar_libreria(request):
         libreria_id_old = request.POST.get('libreria_id')  #18
         nueva_libreria_id = request.POST.get('nueva_libreria_id') #delete
         delete = request.POST.get('delete') == 'true'
-
+        print(f'nueva_libreria_id, {nueva_libreria_id}')
+        print(f'libreria_id_old, {libreria_id_old}')
+        print(f'libro_id, {libro_id}')
         libro=Libro.objects.get(id=libro_id)
-
 
         if delete:
             libreria=Libreria.objects.get(id=libreria_id_old)
@@ -417,11 +418,15 @@ def crear_libro(request):
             foto=foto,
             extension=extension,
         )
+        nuevo_libro = Libro.objects.get(titulo=titulo)
 
-
-        return JsonResponse({'message': 'Libro creado correctamente.'}, status=201)
+        return JsonResponse({
+                    'message': 'Libro creado correctamente.',
+                    'id': nuevo_libro.id  # <--- Enviamos el ID
+                }, status=201)
+                
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+                return JsonResponse({'error': str(e)}, status=500)
 
 
 
@@ -548,6 +553,9 @@ def lastLibro(request):
     try:
         last_libro = Libro.objects.latest('id')
         next_id = last_libro.id +1
+        print(next_id)
+        print(last_libro)
+        print("hey")
         return JsonResponse({'last_libro_id': next_id}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

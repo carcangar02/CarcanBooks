@@ -67,11 +67,6 @@ const pertenencia = librerias.find(libreria => libreria.libros_pk.includes(libro
 let libro_web = false
 if (libro_id == null){
     libro_web = true
-    fetch('/libros/lastLibro/')
-    .then(response => response.json())
-    .then(data => {
-        libro_id = data.last_libro_id;
-    });
 }
 
 
@@ -111,8 +106,68 @@ function crear_radios(librerias=null){
 
 
 
+
+
+
+
+
+
+
+function descargarLibro(formData) {
+    fetch('/libros/descarga_to_ebook/', {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: formData
+    })
+    .then(response => response.blob())
+    .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "{{libro.titulo}}.epub";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+})
+    .catch(error => console.error(error.message));
+}
+
+
+
+async function crear_libro(libro_info) {
+    const formData = new FormData();
+    formData.append('titulo', libro_info.titulo);
+    formData.append('enlace', libro_info.enlace);
+    formData.append('foto', libro_info.foto);
+    formData.append('extension', libro_info.extension);
+    
+    try {
+        const response = await fetch('/libros/crear_libro/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        });
+        
+        const data = await response.json(); // Convertimos la respuesta a JSON
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Error en la solicitud');
+        } else {
+            libro_id = data.id;
+            return libro_id; 
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert("Hubo un error: " + error.message);
+    }
+}
+
 function cambiarLibreria(formData) {
-    console.log('hola');
     fetch('/libros/cambiar_libreria/', {
         method: 'POST',
         headers: {
@@ -126,66 +181,6 @@ function cambiarLibreria(formData) {
     document.getElementById("miModal").style.display = "none";
     })
 }
-
-
-
-
-
-
-
-function descargarLibro(formData) {
-
-fetch('/libros/descarga_to_ebook/', {
-    method: 'POST',
-    headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-    },
-    body: formData
-})
-.then(response => response.blob())
-.then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = "{{libro.titulo}}.epub";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-})
-.catch(error => console.error(error.message));
-}
-
-
-
-async function crear_libro(libro_info) {
-    const formData = new FormData();
-    formData.append('titulo', libro_info.titulo);
-    formData.append('enlace', libro_info.enlace);
-    formData.append('foto', libro_info.foto);
-    formData.append('extension', libro_info.extension);
-
-    try {
-        const response = await fetch('/libros/crear_libro/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error('Error en la solicitud');
-        }
-        else{
-        document.getElementById("miModal").style.display = "none";
-        alert("Libro creado correctamente");
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
 
 
 
@@ -248,11 +243,11 @@ const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListe
     formData.append('libreria_id', libreria_id);
     }
     formData.append('nueva_libreria_id', nueva_libreria_id);
-    formData.append('libro_id', libro_id); 
-
-
+    
+    
     if (selectedRadioNuevo.value === "delete") {
- 
+        
+            formData.append('libro_id', libro_id); 
             document.getElementById("miModal").style.display = "none";
 
             formData.append('delete', true);
@@ -270,8 +265,8 @@ const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListe
             'foto': '{{ libro.foto }}',
             'extension': '{{ libro.extension }}',
         } 
-        await crear_libro(libro_info); 
-
+        libro_id_nuevo = await crear_libro(libro_info); 
+        formData.append('libro_id', libro_id_nuevo);
         cambiarLibreria(formData);
     }
 
@@ -280,6 +275,7 @@ const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListe
 
  
     if (libro_web == false && nueva_libreria_id !== 'delete') {
+        formData.append('libro_id', libro_id); 
         cambiarLibreria(formData);
         return;
     }
