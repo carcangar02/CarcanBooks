@@ -221,29 +221,28 @@ def libro_details(request, libro_id=None, info_coded=None):
             enlace = libro_db.enlace
             foto = libro_db.foto
             extension = libro_db.extension.nombre
+            
+        objetos_a_crear = []
+        for cap in libro_scrapped['capitulos']:
+            objetos_a_crear.append(
+                Capitulos(
+                    libro=libro_db,
+                    enlace=cap['href'],
+                    titulo=cap['title'],
+                    visto=False
+                )
+            )
 
 
-        num_caps_db = libro_db.num_capitulos
-        num_caps_web=len(libro_scrapped['capitulos'])
-
-        if num_caps_db != num_caps_web and num_caps_web > 0:
-            diferencia = num_caps_web - num_caps_db
-            for cap in libro_scrapped['capitulos'][-diferencia:]:
-                if 'href' in cap and 'title' in cap:
-                    nuevo_capitulo = Capitulos(
-                        enlace=cap['href'],
-                        libro=libro_db,
-                        titulo=cap['title'],
-                        visto=False
-                    )
-                    nuevo_capitulo.save()
+        Capitulos.objects.bulk_create(
+            objetos_a_crear, 
+            ignore_conflicts=True 
+        )
 
 
-                else:
-                    print(f"Capítulo sin enlace o título en libro {libro_db.titulo} (ID {libro_db.id}): {cap}")
-            new_num_cap = libro_db.capitulos.count()
-            libro_db.num_capitulos = new_num_cap
-            libro_db.save()
+        libro_db.num_capitulos = libro_db.capitulos.count()
+        libro_db.save()
+
         
 
 

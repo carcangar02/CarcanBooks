@@ -33,10 +33,24 @@ class Libro(models.Model):
         return self.titulo
 
 class Capitulos(models.Model):
-    enlace = models.URLField(max_length=200, unique=True)
+    # 1. Quitamos unique=True y AUMENTAMOS el max_length (200 es muy poco para URLs hoy en día)
+    enlace = models.URLField(max_length=500) 
+    
     libro = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name='capitulos')
     titulo = models.CharField(max_length=200)
     visto = models.BooleanField(default=False)
+
+    # 2. Agregamos esta clase interna
+    class Meta:
+        # Esto crea la restricción: La combinación (libro + enlace) debe ser única.
+        # Permite que la misma URL exista para el Libro A y para el Libro B (si hubiera duplicados),
+        # pero evita que el Libro A tenga el mismo capítulo dos veces.
+        unique_together = ('libro', 'enlace') 
+        # Opcional: índices para velocidad
+        indexes = [
+            models.Index(fields=['enlace']),
+        ]
+
     def __str__(self):
         return self.titulo
 
