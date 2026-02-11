@@ -99,7 +99,7 @@ def scrap_libro_details(enlace):
 
 def scrap_busqueda(input): 
     string_busqueda = input.strip().replace(" ", "%20").lower()
-    enlace = f"https://novelfire.net/ajax/searchLive?inputContent={string_busqueda}"
+    enlace = f"https://novelfire.net/ajax/searchLive?keyword={string_busqueda}&type=title"
 
     scraper = cloudscraper.create_scraper()
     response = scraper.get(enlace)

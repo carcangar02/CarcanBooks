@@ -454,7 +454,7 @@ def descarga_to_ebook(request) :
     try:
         libro_id = request.POST.get('libro_id')
         libro = Libro.objects.get(pk=libro_id)
-        capitulos = Capitulos.objects.filter(libro=libro).values('enlace', 'libro')
+        capitulos = Capitulos.objects.filter(libro=libro).values('enlace', 'libro').order_by('id')
         extension_scrap = importlib.import_module(f'libros.services.{libro.extension.nombre}.scrap')
         toEbbok = importlib.import_module('libros.services.toEbook')
         html_caps = []
@@ -466,8 +466,8 @@ def descarga_to_ebook(request) :
         if total_caps == 0:
             print("No hay capítulos para descargar.")
         else:
-            # configuraciones de concurrencia y reintentos
-            max_workers = min(5, total_caps)  # reducir concurrencia para evitar bloqueos/rate limits
+          
+            max_workers = min(5, total_caps)  
             max_retries = 3
             retry_backoff_base = 2  # segundos
 
@@ -478,22 +478,21 @@ def descarga_to_ebook(request) :
             failed_count = 0
 
             def fetch_with_retries(enlace, idx_local):
-                # realiza varios intentos con backoff exponencial
+            
                 for attempt in range(1, max_retries + 1):
                     try:
-                        print(f"[Cap {idx_local}] Intento {attempt} - descargando {enlace}")
                         contenido_local = extension_scrap.scrap_capitulo(enlace)
-                        # si el contenido está vacío, tratarlo como fallo y reintentar
+                        
                         if contenido_local:
                             return contenido_local
                         else:
                             print(f"[Cap {idx_local}] Contenido vacío en intento {attempt}.")
                     except Exception as e:
                         print(f"[Cap {idx_local}] Error en intento {attempt}: {e}")
-                    # backoff antes del siguiente intento
+                
                     sleep_for = retry_backoff_base ** attempt
                     time.sleep(sleep_for + 0.5)
-                # si todos los reintentos fallan, devolver cadena vacía
+                
                 return ""
 
             with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -502,7 +501,7 @@ def descarga_to_ebook(request) :
                     enlace = cap.get('enlace')
                     future = executor.submit(fetch_with_retries, enlace, idx)
                     future_to_idx[future] = idx
-                    # pequeño retardo al encolar para evitar ráfagas
+                    
                     time.sleep(0.1)
 
                 for future in as_completed(future_to_idx):
@@ -519,7 +518,7 @@ def descarga_to_ebook(request) :
                     percent = int((completed / total_caps) * 100)
                     print(f"Progreso descarga: {completed}/{total_caps} capítulos ({percent}%)")
 
-            # Si demasiados fallos, intentar de nuevo secuencialmente para mayor estabilidad
+           
             if failed_count > 0 and failed_count / total_caps > 0.2:
                 print(f"Detectados {failed_count} fallos; intentando descarga secuencial para capítulos fallidos.")
                 for idx, contenido in enumerate(resultados, start=1):
@@ -534,7 +533,7 @@ def descarga_to_ebook(request) :
 
 
 
-        bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps)
+        bueffer_ebook = toEbbok.crear_ebook(libro.titulo, html_caps, libro.foto)
 
 
         response = HttpResponse(bueffer_ebook, content_type='application/epub+zip')
