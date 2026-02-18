@@ -53,36 +53,56 @@ def scrap_libro_details(enlace):
     if response.status_code == 200:
         # Parsear el HTML con BeautifulSoup
         main = BeautifulSoup(response.text, 'html.parser')
-        report_interno = main.find('a', id='novel-report')
-        libro_id_interno = report_interno.get('report-post_id')
         imagen = main.select_one('figure.cover img')
         titulo_web = main.find('h1', class_='novel-title text2row').text
 
 
-
-        enlace_capitulos_base = f'https://novelfire.net/listChapterDataAjax?post_id={libro_id_interno}&draw=1&columns%5B0%5D%5Bdata%5D=title&columns%5B0%5D%5Bname%5D=&columns%5B0%5D%5Bsearchable%5D=true&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=created_at&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=true&columns%5B1%5D%5Borderable%5D=true&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=n_sort&columns%5B2%5D%5Bname%5D=&columns%5B2%5D%5Bsearchable%5D=false&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&order%5B0%5D%5Bcolumn%5D=2&order%5B0%5D%5Bdir%5D=asc&start=0&length=-1&search%5Bvalue%5D=&search%5Bregex%5D=false&_=1765977081754'
-        scraper_capitulos = cloudscraper.create_scraper()
-        response = scraper_capitulos.get(enlace_capitulos_base)
-
-        # Comprobar que la petición fue exitosa
-        if response.status_code == 200:
-            # Parsear el HTML con BeautifulSoup
-            json_response = json.loads(response.text)
-            
-        capitulos_array = []
+        # Recoger al informacion de los capitulo
+        enlace= f"https://novelfire.net/book/{slug_libro}/chapters"
         
-        resultado = html.unescape(json_response['data'])
+        capitulos_array = []
 
-        for row in resultado:
-                slug_capitulo_enlace = row["slug"]
-                slug_corte = re.search(r'chapter-\d+', slug_capitulo_enlace)
-                if slug_corte:
-                    n_capitulo_enlace = slug_corte.group(0)
-                    
+        scraper2 = cloudscraper.create_scraper()
+        response2 = scraper2.get(enlace)
+
+
+        if response2.status_code == 200:
+            main2 = BeautifulSoup(response2.text, 'html.parser')
+
+            items = main2.find_all('li', class_='page-item')
+
+            if len(items) >= 2:
+
+                li_intermedios = items[1:-1]
+
+                ultimo_numero = li_intermedios[-1].get_text(strip=True)
+                
+        for i in range(1, int(ultimo_numero)+1):
+            enlace = f"https://novelfire.net/book/{slug_libro}/chapters?page={i}"
+            scraper3 = cloudscraper.create_scraper()
+            response3 = scraper3.get(enlace)
+
+             # Comprobar que la petición fue exitosa
+            if response3.status_code == 200:
+                main3 = BeautifulSoup(response3.text, 'html.parser')
+
+
+                capitulos = main3.select('ul.chapter-list li a')
+
+                for cap in capitulos:
+                    nombre_capitulo = cap.find('strong', class_='chapter-title').get_text(strip=True)
+                    enlace_capitulo = cap['href']
                     capitulos_array.append({
-                        'title': row["title"],
-                        'href': f'https://novelfire.net/book/{slug_libro}/{n_capitulo_enlace}' #------------------------------------------- PROBLEMA , ME FALTA EL SLUG DEL LIBRO
-                    })
+                        'title': nombre_capitulo,
+                        'href': enlace_capitulo })
+
+
+
+        
+
+
+
+
 
 
     info_libro = {

@@ -376,9 +376,6 @@ def cambiar_libreria(request):
         libreria_id_old = request.POST.get('libreria_id')  #18
         nueva_libreria_id = request.POST.get('nueva_libreria_id') #delete
         delete = request.POST.get('delete') == 'true'
-        print(f'nueva_libreria_id, {nueva_libreria_id}')
-        print(f'libreria_id_old, {libreria_id_old}')
-        print(f'libro_id, {libro_id}')
         libro=Libro.objects.get(id=libro_id)
 
         if delete:

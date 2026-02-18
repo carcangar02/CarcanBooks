@@ -40,13 +40,10 @@ class Capitulos(models.Model):
     titulo = models.CharField(max_length=200)
     visto = models.BooleanField(default=False)
 
-    # 2. Agregamos esta clase interna
+
     class Meta:
-        # Esto crea la restricción: La combinación (libro + enlace) debe ser única.
-        # Permite que la misma URL exista para el Libro A y para el Libro B (si hubiera duplicados),
-        # pero evita que el Libro A tenga el mismo capítulo dos veces.
+
         unique_together = ('libro', 'enlace') 
-        # Opcional: índices para velocidad
         indexes = [
             models.Index(fields=['enlace']),
         ]
