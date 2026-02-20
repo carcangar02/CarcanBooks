@@ -48,7 +48,7 @@ def scrap_libro_details(enlace):
     response = scraper.get(enlace)
 
     slug_libro = enlace.split("/")[-1]
-    print(slug_libro)
+
     # Comprobar que la petición fue exitosa
     if response.status_code == 200:
         # Parsear el HTML con BeautifulSoup

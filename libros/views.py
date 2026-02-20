@@ -548,9 +548,7 @@ def lastLibro(request):
     try:
         last_libro = Libro.objects.latest('id')
         next_id = last_libro.id +1
-        print(next_id)
-        print(last_libro)
-        print("hey")
+
         return JsonResponse({'last_libro_id': next_id}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
