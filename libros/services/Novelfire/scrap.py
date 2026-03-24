@@ -92,6 +92,8 @@ def scrap_libro_details(enlace):
                 for cap in capitulos:
                     nombre_capitulo = cap.find('strong', class_='chapter-title').get_text(strip=True)
                     enlace_capitulo = cap['href']
+                    if(not enlace_capitulo.startswith('https://novelfire.net')):
+                        enlace_capitulo = f'https://novelfire.net{enlace_capitulo}'
                     capitulos_array.append({
                         'title': nombre_capitulo,
                         'href': enlace_capitulo })

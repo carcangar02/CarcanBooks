@@ -516,13 +516,7 @@ def descarga_to_ebook(request) :
                     print(f"Progreso descarga: {completed}/{total_caps} capítulos ({percent}%)")
 
            
-            if failed_count > 0 and failed_count / total_caps > 0.2:
-                print(f"Detectados {failed_count} fallos; intentando descarga secuencial para capítulos fallidos.")
-                for idx, contenido in enumerate(resultados, start=1):
-                    if not contenido:
-                        enlace = capitulos_list[idx - 1].get('enlace')
-                        contenido_seq = fetch_with_retries(enlace, idx)
-                        resultados[idx - 1] = contenido_seq
+            print(f"Descarga completada: {completed} capítulos descargados, {failed_count} fallidos.")      
 
             html_caps = resultados
 

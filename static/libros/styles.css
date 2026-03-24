@@ -106,11 +106,12 @@ body {
 
 a {
     color: #82aaff;
-    text-decoration: none;
+    text-decoration: none; /* Elimina el subrayado por defecto */
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none; /* Evita que el subrayado aparezca al pasar el cursor */
+    filter: brightness(1.2); /* Sugerencia: usa un cambio de brillo para feedback visual en lugar de subrayado */
 }
 
 .libro-details {
