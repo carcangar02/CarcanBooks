@@ -468,7 +468,7 @@ def descarga_to_ebook(request) :
             max_retries = 3
             retry_backoff_base = 2  # segundos
 
-            print(f"Usando hasta {max_workers} hilos para descargar capítulos en paralelo (reintentos={max_retries}).")
+            print(f"Usando hasta {max_workers} hilos para descargar capítulos en paralelo .")
 
             resultados = [None] * total_caps
             completed = 0
@@ -487,8 +487,8 @@ def descarga_to_ebook(request) :
                     except Exception as e:
                         print(f"[Cap {idx_local}] Error en intento {attempt}: {e}")
                 
-                    sleep_for = retry_backoff_base ** attempt
-                    time.sleep(sleep_for + 0.5)
+                    
+                    time.sleep(retry_backoff_base + 0.5)
                 
                 return ""
 
