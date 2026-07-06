@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
-
-
-
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Libreria(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='librerias', default=None)
@@ -13,6 +11,12 @@ class Libreria(models.Model):
     def __str__(self):
         return self.nombre
 
+class Perfil(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
+    capitulos_vistos = models.ManyToManyField('Capitulos', blank=True, related_name='visto_por')
+
+    def __str__(self):
+        return f"Perfil de {self.usuario.username}"
 
 class Extension(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -38,7 +42,7 @@ class Capitulos(models.Model):
     
     libro = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name='capitulos')
     titulo = models.CharField(max_length=200)
-    visto = models.BooleanField(default=False)
+    contenido = models.TextField(blank=True, null=True)
 
 
     class Meta:
@@ -51,3 +55,15 @@ class Capitulos(models.Model):
     def __str__(self):
         return self.titulo
 
+
+@receiver(post_save, sender=User)
+def crear_perfil(sender, instance, created, **kwargs):
+    if created:
+        Perfil.objects.get_or_create(usuario=instance)
+
+@receiver(post_save, sender=User)
+def guardar_perfil(sender, instance, **kwargs):
+    if hasattr(instance, 'perfil'):
+        instance.perfil.save()
+    else:
+        Perfil.objects.get_or_create(usuario=instance)

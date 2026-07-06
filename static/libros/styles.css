@@ -6,7 +6,9 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #121212;
+    background-color: #0a0a0a;
+    background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+    background-attachment: fixed;
     color: #e0e0e0;
     font-family: 'Segoe UI', sans-serif;
 }
@@ -164,6 +166,7 @@ a:hover {
 
 #lista_capitulos li.visto a {
     color: #66bb6a;
+    opacity: 0.5;
 }
 
 #lista_capitulos li.no_visto a {
@@ -339,45 +342,45 @@ a:hover {
 
 
 /* ---------Boton de encendido/apagado con CSS puro--------- */
-input[type=checkbox] {
+.toggle-checkbox {
     height: 0;
     width: 0;
     visibility: hidden;
 }
 
-label {
+.toggle-label {
     cursor: pointer;
     text-indent: -9999px;
-    width: 50px; /* antes 200px */
-    height: 25px; /* antes 100px */
+    width: 50px;
+    height: 25px;
     background: grey;
     display: block;
     border-radius: 25px;
     position: relative;
 }
 
-label:after {
+.toggle-label:after {
     content: '';
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 19px; /* antes 90px */
-    height: 19px; /* antes 90px */
+    width: 19px;
+    height: 19px;
     background: #fff;
     border-radius: 50%;
     transition: 0.3s;
 }
 
-input:checked + label {
+input:checked + .toggle-label {
     background: #bada55;
 }
 
-input:checked + label:after {
+input:checked + .toggle-label:after {
     left: calc(100% - 3px);
     transform: translateX(-100%);
 }
 
-label:active:after {
+.toggle-label:active:after {
     width: 25px;
 }
 

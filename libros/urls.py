@@ -20,7 +20,10 @@ urlpatterns = [
     path('crear_libro/', views.crear_libro, name='crear_libro'),
     path('borrar_libreria/', views.borrar_libreria, name='borrar_libreria'),
     path('carga_dinamica_librerias/', views.carga_dinamica_librerias, name='carga_dinamica_librerias'),
+    path('marcar_visto/', views.marcar_visto, name='marcar_visto'),
+    path('marcar_masivo/', views.marcar_masivo, name='marcar_masivo'),
     path('lastLibro/', views.lastLibro, name='lastLibro'),
+    path('progreso_descarga/<int:libro_id>/', views.get_progreso_descarga, name='get_progreso_descarga'),
 
 
 ]

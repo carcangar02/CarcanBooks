@@ -100,13 +100,6 @@ def scrap_libro_details(enlace):
 
 
 
-        
-
-
-
-
-
-
     info_libro = {
         'titulo': titulo_web,
         'foto': imagen['src'],

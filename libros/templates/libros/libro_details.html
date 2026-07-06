@@ -4,137 +4,507 @@
     <head>
         <title>{{ libro.titulo }}</title>
         <link rel="stylesheet" href="{% static 'libros/styles.css' %}">
+        <style>
+            :root {
+                --bg-card: rgba(30, 30, 30, 0.9);
+                --accent-blue: #2752a0;
+                --accent-hover: #1a3870;
+                --visto-color: #66bb6a;
+                --text-secondary: #ccc;
+                --fs-base: 1.2rem;
+                --fs-large: 1.4rem;
+                --fs-hero: 3.5rem;
+            }
+
+            body {
+                font-size: var(--fs-base);
+                background-color: #0a0a0a;
+                background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+                background-attachment: fixed;
+                margin: 0;
+                min-height: 100vh;
+            }
+
+            .container-main {
+                max-width: 95%;
+                margin: 0 auto;
+                padding: 40px 20px;
+                min-height: 100vh;
+            }
+
+            .btn-action {
+                padding: 15px 30px;
+                border-radius: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                border: none;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                font-size: var(--fs-base);
+            }
+
+            .btn-primary { background-color: var(--accent-blue); color: white; box-shadow: 0 4px 15px rgba(39, 82, 160, 0.3); }
+            .btn-primary:hover { background-color: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(39, 82, 160, 0.4); }
+            
+            .btn-secondary { background-color: #2a2a2a; color: #eee; border: 1px solid #444; }
+            .btn-secondary:hover { background-color: #3a3a3a; transform: translateY(-2px); }
+
+            .book-hero {
+                display: flex;
+                gap: 50px;
+                background: rgba(20, 20, 20, 0.85);
+                backdrop-filter: blur(10px);
+                padding: 60px;
+                border-radius: 25px;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+                margin-bottom: 50px;
+                align-items: center;
+                flex-wrap: wrap;
+                border: 1px solid rgba(255,255,255,0.05);
+            }
+
+            .hero-img-container img {
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,1);
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: block;
+                width: 280px;
+            }
+
+            .hero-img-container img:hover {
+                transform: scale(1.05) rotate(2deg);
+            }
+
+            .hero-content {
+                flex: 1;
+                min-width: 400px;
+            }
+
+            .hero-content h1 {
+                font-size: var(--fs-hero);
+                margin: 0 0 25px 0;
+                color: #fff;
+                line-height: 1.1;
+                text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            }
+
+            .hero-actions {
+                display: flex;
+                gap: 20px;
+                margin-top: 35px;
+                flex-wrap: wrap;
+            }
+
+            .tools-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+                gap: 30px;
+                margin-bottom: 50px;
+            }
+
+            .card-tool {
+                background: var(--bg-card);
+                backdrop-filter: blur(5px);
+                padding: 35px;
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.05);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            }
+
+            .card-tool h3 {
+                margin: 0 0 25px 0;
+                font-size: var(--fs-large);
+                color: #82aaff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .input-group {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .card-tool input {
+                background: #0a0a0a !important;
+                border: 1px solid #444 !important;
+                color: white !important;
+                padding: 15px 20px !important;
+                border-radius: 10px !important;
+                font-size: var(--fs-base) !important;
+            }
+
+            #div-capitulos {
+                background: var(--bg-card);
+                backdrop-filter: blur(5px);
+                border-radius: 20px;
+                border: 1px solid rgba(255,255,255,0.05);
+                margin-bottom: 60px;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            }
+
+            #lista_capitulos li {
+                padding: 25px 40px;
+                border-bottom: 1px solid rgba(255,255,255,0.03);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                transition: all 0.2s;
+            }
+
+            #lista_capitulos li:hover {
+                background: rgba(255,255,255,0.03);
+                padding-left: 50px;
+            }
+
+            #lista_capitulos li a {
+                flex-grow: 1;
+                font-size: var(--fs-large);
+                font-weight: 500;
+                color: #82aaff;
+                transition: color 0.2s;
+            }
+
+            #lista_capitulos li.visto a {
+                color: var(--visto-color);
+                opacity: 0.5;
+            }
+
+            .marcar-btn {
+                background: rgba(255,255,255,0.05);
+                color: #fff;
+                border: 1px solid rgba(255,255,255,0.1);
+                padding: 10px 25px;
+                border-radius: 10px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .marcar-btn:hover {
+                background: var(--accent-blue);
+                border-color: var(--accent-blue);
+            }
+
+            #loading-sentinel {
+                text-align: center;
+                padding: 60px;
+                color: #82aaff;
+                font-style: italic;
+                font-size: var(--fs-large);
+                opacity: 0.8;
+            }
+
+            /* Modal */
+            #modal-contenido-details {
+                background: #121212;
+                max-width: 600px;
+                padding: 40px;
+                border-radius: 25px;
+                border: 1px solid #333;
+            }
+
+            @media (max-width: 800px) {
+                .book-hero { padding: 40px; gap: 30px; }
+                .hero-content h1 { font-size: 2.5rem; }
+                .hero-img-container img { width: 200px; }
+                .tools-grid { grid-template-columns: 1fr; }
+                #lista_capitulos li { padding: 20px; }
+            }
+
+            /* Estilos Barra de Progreso */
+            #progress-container {
+                display: none;
+                width: 100%;
+                background-color: #2a2a2a;
+                border-radius: 10px;
+                margin-top: 25px;
+                overflow: hidden;
+                border: 1px solid #444;
+            }
+            #progress-bar {
+                width: 0%;
+                height: 25px;
+                background-color: var(--accent-blue);
+                transition: width 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                color: white;
+                font-weight: bold;
+            }
+        </style>
     </head>
 
     <body>
-        <div> 
-            <a href="/libros/librerias" class="btn-navegacion">Libreria</a>
+        <div class="container-main"> 
+            <a href="/libros/librerias" class="btn-action btn-secondary" style="margin-bottom: 40px;">&larr; LIBRERÍA</a>
 
-            <div class="libro-details">
-                <header>
-                    <h1>{{ libro.titulo }}</h1>
-                </header>
-                <div id ="libro-img">
-                    <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" width="200" loading="lazy">
+            <div class="book-hero">
+                <div class="hero-img-container">
+                    <img src="{{ libro.foto }}" alt="{{ libro.titulo }}" loading="lazy">
                 </div>
-                
-                
-                <button id="abrirModalBtn" class="btn-navegacion">Elegir Libreria</button>
-                {% if libro.id %}<button id="descargar_button">Descargar</button>{% endif %}
-
-
-
-
-                <div id="miModal" class="modal">
-                    <div class="modal-contenido" id ="modal-contenido-details">
-                        <span class="cerrar">&times;</span>
-
-
-                        <div>Selecciona un libreria:</div>
-                        <ul style="list-style: none; padding-left: 0;" id="radio_libreria">
-                            <li>
-                                <div>
-                                    <input type="radio" name="elemento" value="delete" class="radio_element" >
-                                    Eliminar
-                                </div>
-                            </li>
-                        </ul>
-
-                        <button type="submit" id="guardarListaBtn" class="btn-navegacion">Guardar</button>
-                        </form>
+                <div class="hero-content">
+                    <h1>{{ libro.titulo }}</h1>
+                    <div class="hero-actions">
+                        <button id="abrirModalBtn" class="btn-action btn-primary">GESTIONAR LIBRERÍA</button>
+                        {% if libro.id %}
+                        <button id="descargar_button" class="btn-action btn-secondary">DESCARGAR EPUB</button>
+                        {% endif %}
+                    </div>
+                    <div id="progress-container">
+                        <div id="progress-bar">0%</div>
                     </div>
                 </div>
             </div>
 
+            <!-- Modal fuera del hero -->
+            <div id="miModal" class="modal">
+                <div class="modal-contenido" id ="modal-contenido-details">
+                    <span class="cerrar">&times;</span>
+                    <h2 style="margin-top: 0; font-size: 1.8rem; margin-bottom: 30px; color: #fff;">Gestionar en Librerías</h2>
+                    <ul style="list-style: none; padding-left: 0;" id="radio_libreria">
+                        <li>
+                            <label style="display: flex; align-items: center; width: 100%; cursor: pointer; text-indent: 0; height: auto; background: none; border-radius: 0; padding: 15px; background: #1a1a1a; border-radius: 12px; margin-bottom: 10px;">
+                                <input type="radio" name="elemento" value="delete" class="radio_element">
+                                <span style="margin-left: 15px; font-size: 1.2rem; color: #ff5252;">Eliminar de todas las listas</span>
+                            </label>
+                        </li>
+                    </ul>
+                    <button type="submit" id="guardarListaBtn" class="btn-action btn-primary" style="width: 100%; margin: 30px 0 0 0; padding: 20px;">GUARDAR CAMBIOS</button>
+                </div>
+            </div>
+
+            {% if libro.id %}
+            <div class="tools-grid">
+                <div class="card-tool">
+                    <h3>Buscador de Capítulos</h3>
+                    <form method="GET" style="display: flex; gap: 15px;">
+                        <input type="text" name="q" id="search-input" placeholder="¿Qué capítulo buscas?..." value="{{ q }}" style="flex-grow: 1;">
+                        <button type="submit" class="btn-action btn-primary">BUSCAR</button>
+                        {% if q %}
+                            <a href="?" class="btn-action btn-secondary" style="padding: 15px;">&times;</a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="card-tool">
+                    <h3>Marcado de Progreso</h3>
+                    <div class="input-group">
+                        <input type="number" id="bulk-desde" value="0" style="width: 100px;" title="Desde">
+                        <span style="font-size: 1.2rem; color: #888;">hasta</span>
+                        <input type="number" id="bulk-hasta" value="100" style="width: 100px;" title="Hasta">
+                        <button onclick="marcarMasivo(true)" class="btn-action btn-primary">VISTOS</button>
+                        <button onclick="marcarMasivo(false)" class="btn-action btn-secondary">NO VISTOS</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <div id="div-capitulos">
                 <ul id="lista_capitulos"></ul>
+                <div id="loading-sentinel">Cargando contenido...</div>
             </div>
-
 
         </div>
     </body>
 </html>
 
-
 <script>
-const capitulos = JSON.parse('{{ capitulos|escapejs }}');
+let capitulos = JSON.parse('{{ capitulos|escapejs }}');
 const librerias = JSON.parse('{{ librerias|escapejs }}');
 const radio = document.getElementById("radio_libreria");
 let libro_id = {{libro.id|default:"null"}};
 const pertenencia = librerias.find(libreria => libreria.libros_pk.includes(libro_id));
+let libro_web = libro_id == null;
 
-let libro_web = false
-if (libro_id == null){
-    libro_web = true
+let currentPage = 1;
+let hasNext = {{ page_obj.has_next|yesno:"true,false" }};
+let isLoading = false;
+const q = "{{ q }}";
+
+function renderCapitulos(caps) {
+    const list = document.getElementById('lista_capitulos');
+    caps.forEach((capitulo) => {
+        const li = document.createElement('li');
+        li.classList.add(capitulo.visto ? 'visto' : 'no_visto');
+        
+        let btnText = capitulo.visto ? 'DESMARCAR' : 'VISTO';
+        let nextStatus = !capitulo.visto;
+        
+        li.innerHTML = `
+            <a href="/libros/lector/${capitulo.id}/">${capitulo.titulo}</a>
+            ${capitulo.id ? `<button class="marcar-btn" onclick="marcarVisto(${capitulo.id}, ${nextStatus}, this)">${btnText}</button>` : ''}
+        `;
+        list.appendChild(li);
+    });
 }
 
+function loadMoreCapitulos() {
+    if (isLoading || !hasNext) return;
+    isLoading = true;
+    currentPage++;
+    
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', currentPage);
+    if (q) url.searchParams.set('q', q);
 
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        renderCapitulos(data.capitulos);
+        hasNext = data.has_next;
+        isLoading = false;
+        if (!hasNext) {
+            document.getElementById('loading-sentinel').innerText = 'HAS LLEGADO AL FINAL DEL LIBRO';
+        }
+    })
+    .catch(() => {
+        isLoading = false;
+    });
+}
 
+const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+        loadMoreCapitulos();
+    }
+}, { threshold: 0.1 });
 
+observer.observe(document.getElementById('loading-sentinel'));
 
-
-
+renderCapitulos(capitulos);
+if (!hasNext) {
+    document.getElementById('loading-sentinel').innerText = 'HAS LLEGADO AL FINAL DEL LIBRO';
+}
 
 function crear_radios(librerias=null){
     if (!librerias) return;
     librerias.forEach(libreria => {
-
         let lista_element = document.createElement("li");
-        if (pertenencia && pertenencia.pk === libreria.pk) {
-            lista_element.innerHTML = `
-            <div>
-                <input type="radio" name="elemento" value="${libreria.pk}" class="radio_element" checked>
-                ${libreria.nombre}
-            </div>
+        let checked = (pertenencia && pertenencia.pk === libreria.pk) ? 'checked' : '';
+        lista_element.innerHTML = `
+            <label style="display: flex; align-items: center; width: 100%; cursor: pointer; text-indent: 0; height: auto; background: none; border-radius: 0; padding: 15px; background: #1a1a1a; border-radius: 12px; margin-bottom: 10px;">
+                <input type="radio" name="elemento" value="${libreria.pk}" class="radio_element" ${checked}>
+                <span style="margin-left: 15px; font-size: 1.2rem; color: #fff;">${libreria.nombre}</span>
+            </label>
         `;
-        }
-        else{
-            lista_element.innerHTML = `
-                <div>
-                    <input type="radio" name="elemento" value="${libreria.pk}" class="radio_element" >
-                    ${libreria.nombre}
-                </div>
-            `;
-        }
         radio.appendChild(lista_element);
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-function descargarLibro(formData) {
-    fetch('/libros/descarga_to_ebook/', {
-    method: 'POST',
-    headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-    },
-    body: formData
+function marcarVisto(cap_id, visto, element) {
+    const formData = new FormData();
+    formData.append('capitulo_id', cap_id);
+    formData.append('visto', visto);
+    fetch('/libros/marcar_visto/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
     })
-    .then(response => response.blob())
-    .then(blob => {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = "{{libro.titulo}}.epub";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-})
-    .catch(error => console.error(error.message));
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            const li = element.closest('li');
+            if (visto) {
+                li.classList.remove('no_visto');
+                li.classList.add('visto');
+                element.innerText = 'DESMARCAR';
+                element.onclick = () => marcarVisto(cap_id, false, element);
+            } else {
+                li.classList.remove('visto');
+                li.classList.add('no_visto');
+                element.innerText = 'VISTO';
+                element.onclick = () => marcarVisto(cap_id, true, element);
+            }
+        }
+    });
 }
 
+function marcarMasivo(visto) {
+    const desde = document.getElementById('bulk-desde').value;
+    const hasta = document.getElementById('bulk-hasta').value;
+    const formData = new FormData();
+    formData.append('libro_id', libro_id);
+    formData.append('desde', desde);
+    formData.append('hasta', hasta);
+    formData.append('visto', visto);
+    fetch('/libros/marcar_masivo/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            location.reload();
+        }
+    });
+}
 
+crear_radios(librerias);
+
+if(!pertenencia) {
+    const radioEliminar = document.querySelector('input[name="elemento"][value="delete"]');
+    if(radioEliminar) radioEliminar.checked = true;
+}
+
+const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const selectedRadioNuevo = document.querySelector('input[name="elemento"]:checked');
+    if (!selectedRadioNuevo) {
+        alert("Por favor, selecciona una libreria o eliminar.");
+        return;
+    }
+
+    const nueva_libreria_id = selectedRadioNuevo.value;
+    const formData = new FormData();
+    if(pertenencia){
+        formData.append('libreria_id', pertenencia.pk);
+    }
+    formData.append('nueva_libreria_id', nueva_libreria_id);
+    
+    if (nueva_libreria_id === "delete") {
+        formData.append('libro_id', libro_id); 
+        formData.append('delete', true);
+        cambiarLibreria(formData);
+        return; 
+    }
+
+    if (libro_web) {
+        const libro_info = {
+            'titulo': '{{ libro.titulo}}',
+            'enlace': '{{ libro.enlace }}',
+            'foto': '{{ libro.foto }}',
+            'extension': '{{ libro.extension }}',
+        } 
+        libro_id = await crear_libro(libro_info); 
+        formData.append('libro_id', libro_id);
+        cambiarLibreria(formData);
+    } else {
+        formData.append('libro_id', libro_id); 
+        cambiarLibreria(formData);
+    }
+});
+
+function cambiarLibreria(formData) {
+    fetch('/libros/cambiar_libreria/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Librería cambiada correctamente");
+        document.getElementById("miModal").style.display = "none";
+        location.reload();
+    });
+}
 
 async function crear_libro(libro_info) {
     const formData = new FormData();
@@ -143,204 +513,91 @@ async function crear_libro(libro_info) {
     formData.append('foto', libro_info.foto);
     formData.append('extension', libro_info.extension);
     
-    try {
-        const response = await fetch('/libros/crear_libro/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: formData
-        });
-        
-        const data = await response.json(); // Convertimos la respuesta a JSON
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Error en la solicitud');
-        } else {
-            libro_id = data.id;
-            return libro_id; 
-        }
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert("Hubo un error: " + error.message);
-    }
-}
-
-function cambiarLibreria(formData) {
-    fetch('/libros/cambiar_libreria/', {
+    const response = await fetch('/libros/crear_libro/', {
         method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
         body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-    alert("Librería cambiada correctamente");
-    document.getElementById("miModal").style.display = "none";
-    })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Error en la solicitud');
+    return data.id;
 }
-
-
-
-crear_radios(librerias);
-
-function marcarEliminarSi() {
-    const radioEliminar = document.querySelector('input[name="elemento"][value="delete"]');
-    radioEliminar.checked = true;
-
-}
-
-if(!pertenencia) {
-marcarEliminarSi()
-}
-
-
-
-
-let selectedRadio = document.querySelector('input[name="elemento"]:checked');
-const libreria_id = selectedRadio.value
-
-capitulos.forEach((capitulo) => {
-    const li = document.createElement('li');
-    if (capitulo.visto==true) {
-        li.classList.add('visto')
-    } else {
-        li.classList.add('no_visto')
-    }
-    li.innerHTML = `<a href="/libros/lector/${capitulo.id}/">${capitulo.titulo}</a>`;
-    document.getElementById('lista_capitulos').appendChild(li);
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-const guardarListaBtn = document.getElementById("guardarListaBtn").addEventListener("click", async (e) => {
-    e.preventDefault();
-    const selectedRadioNuevo = document.querySelector('input[name="elemento"]:checked');
-    if (!selectedRadio) {
-        alert("Por favor, selecciona una libreria o eliminar.");
-        return;
-    }
-
-
-
-
-
-    const nueva_libreria_id = selectedRadioNuevo.value;
-    const formData = new FormData();
-    if(pertenencia){
-    formData.append('libreria_id', libreria_id);
-    }
-    formData.append('nueva_libreria_id', nueva_libreria_id);
-    
-    
-    if (selectedRadioNuevo.value === "delete") {
-        
-            formData.append('libro_id', libro_id); 
-            document.getElementById("miModal").style.display = "none";
-
-            formData.append('delete', true);
-            cambiarLibreria(formData);
-            return; 
-    
-    }
-
-
-    if (libro_web == true) {
-  
-        const libro_info = {
-            'titulo': '{{ libro.titulo}}',
-            'enlace': '{{ libro.enlace }}',
-            'foto': '{{ libro.foto }}',
-            'extension': '{{ libro.extension }}',
-        } 
-        libro_id_nuevo = await crear_libro(libro_info); 
-        formData.append('libro_id', libro_id_nuevo);
-        cambiarLibreria(formData);
-    }
-
-
-
-
- 
-    if (libro_web == false && nueva_libreria_id !== 'delete') {
-        formData.append('libro_id', libro_id); 
-        cambiarLibreria(formData);
-        return;
-    }
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const descargarButton = document.getElementById("descargar_button");
-
 if (descargarButton) {
     descargarButton.addEventListener("click", (e) => {
         const formData = new FormData();
-        formData.append('libro_id', {{libro.id}});
+        formData.append('libro_id', libro_id);
         descargarLibro(formData);
     });
 }
 
+function descargarLibro(formData) {
+    const progressContainer = document.getElementById("progress-container");
+    const progressBar = document.getElementById("progress-bar");
+    const downloadBtn = document.getElementById("descargar_button");
+    
+    // Mostrar barra y deshabilitar botón
+    progressContainer.style.display = "block";
+    downloadBtn.disabled = true;
+    downloadBtn.style.opacity = "0.5";
+    progressBar.style.width = "0%";
+    progressBar.innerText = "0%";
 
+    let pollInterval = setInterval(() => {
+        fetch(`/libros/progreso_descarga/${libro_id}/`)
+            .then(r => r.json())
+            .then(data => {
+                const perc = data.porcentaje + "%";
+                progressBar.style.width = perc;
+                progressBar.innerText = perc + ` (${data.completados}/${data.total})`;
+            })
+            .catch(err => console.error("Error polling progress:", err));
+    }, 2000);
 
+    fetch('/libros/descarga_to_ebook/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Error en la descarga");
+        return response.blob();
+    })
+    .then(blob => {
+        clearInterval(pollInterval);
+        progressBar.style.width = "100%";
+        progressBar.innerText = "¡COMPLETADO!";
+        
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "{{libro.titulo}}.epub";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
 
-
-
-
+        setTimeout(() => {
+            progressContainer.style.display = "none";
+            downloadBtn.disabled = false;
+            downloadBtn.style.opacity = "1";
+        }, 5000);
+    })
+    .catch(err => {
+        clearInterval(pollInterval);
+        alert("Error durante la descarga. Se ha guardado el progreso actual.");
+        progressContainer.style.display = "none";
+        downloadBtn.disabled = false;
+        downloadBtn.style.opacity = "1";
+    });
+}
 
 var modal = document.getElementById("miModal");
 var btn = document.getElementById("abrirModalBtn");
 var span = document.getElementsByClassName("cerrar")[0];
 
-
-btn.onclick = function() {
-  modal.style.display = "block";
-}
-
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
-
-
-
-
+if(btn) btn.onclick = () => modal.style.display = "block";
+if(span) span.onclick = () => modal.style.display = "none";
+window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
 
 </script>

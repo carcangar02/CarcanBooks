@@ -1,23 +1,50 @@
+import html
+import json
+import random
+import time
+
+from bs4 import BeautifulSoup
+import cloudscraper
 import requests
 from PIL import Image
 from io import BytesIO
 
-url = "https://novelfire.net/server-1/chrysalis.jpg"
 
-# Definimos cabeceras para simular un navegador Chrome en Windows
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-    "Referer": "https://novelfire.net/" # A veces también verifican desde qué página vienes
-}
+def scrap_capitulo(enlace):
+    # Esperar entre 1 y 3 segundos antes de hacer la petición
+    delay = random.uniform(1.5, 3)
+    time.sleep(delay)
+    print('1')
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(enlace)
 
-try:
-    response = requests.get(url, headers=headers, timeout=10)
-    response.raise_for_status() # Lanza una excepción si hay un error (403, 404, etc.)
+    # Comprobar que la petición fue exitosa
+    if response.status_code == 200:
+        print('2')
 
-    img = Image.open(BytesIO(response.content))
-    img.show()
+        # Parsear el HTML con BeautifulSoup
+        main = BeautifulSoup(response.text, 'html.parser')
+        # Intentar selector principal
+        contenido = main.find('article')
+        print('contenido', contenido)
+        if not contenido:
+            # Fallback para URLs de capítulo en Novelarrow
+            contenido = main.select_one('div.mx-auto min-w-0 max-w-full overflow-hidden')
+        if contenido:
+            try:
+                print('3')
 
-except requests.exceptions.HTTPError as e:
-    print(f"Error HTTP: {e}")
-except Exception as e:
-    print(f"Ocurrió un error: {e}")
+                for div in contenido.find_all('div'):
+                    div.decompose()
+            except:
+                print('4')
+
+                print("Error al eliminar divs")
+            print(str(contenido))
+        # Si no se encontró contenido devuelve cadena vacía
+        return ''
+scrap_capitulo('https://novelarrow.com/chapter/fates-slave-shadow-slave-x-honkai-star-rail/chapter-578-ghostbusters-xxxi')
+
+
+
+
