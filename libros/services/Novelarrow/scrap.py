@@ -30,6 +30,9 @@ def scrap_capitulo(enlace):
         if not contenido:
             # Fallback para URLs de capítulo en Novelarrow
             contenido = main.select_one('div.chapter-content')
+        if not contenido:
+            # Fallback para Novelping
+            contenido = main.select_one('div#chr-content')
         if contenido:
             try:
                 for div in contenido.find_all('div'):
